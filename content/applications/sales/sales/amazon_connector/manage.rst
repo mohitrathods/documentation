@@ -78,19 +78,36 @@ and allows you to manage the stock of your products under the FBA program.
 Issue invoices and register payments
 ====================================
 
-You can issue invoices for Amazon orders in Odoo. Click **Create Invoice** in the sales order to do
-so. You can also do it in batch from the list view of orders. Then, confirm and send the invoices to
-your customers.
+Issue invoices
+--------------
+
+Sending invoices to Amazon customers directly from Odoo is not feasible due to Amazon's policy of
+not sharing customer email addresses. Instead, you can manually upload the
+invoices generated on Odoo to the Amazon backend.
+
+In addition, it is currently required to manually retrieve VAT numbers from the Amazon backend
+before creating an invoice due to an issue with the Selling Partner API.
+
+.. note::
+   For :doc:`TaxCloud <../../../finance/accounting/taxes/taxcloud>` users: invoices created from
+   Amazon sales orders are **not** synchronized with TaxCloud since Amazon already includes them in
+   its own tax report to TaxCloud.
+
+Register payments
+-----------------
+
+As customers pay Amazon as an intermediary, creating a dedicated *Bank* journal with a dedicated
+*Bank and Cash* intermediary account is recommended.
+
+In addition, as Amazon makes a single monthly payment, selecting all the invoices linked to a single
+payment is necessary when registering payments. Use the dedicated Amazon :guilabel:`Journal`
+you created and select :guilabel:`Batch Deposit` as the :guilabel:`Payment Method`. Then, select all the
+payments generated and click :menuselection:`Actions --> Create batch payment --> Validate`.
 
 .. tip::
-   To display only Amazon-related orders on the list view, you can filter orders based on the sales
-   team.
-
-As the customer has paid Amazon as an intermediary, you should register invoice payments in a
-payment journal dedicated to Amazon (e.g. Amazon Payments, with a dedicated intermediary account).
-You can do the same with the vendor bill received from Amazon and dedicated to commissions. When you
-receive the balance on your bank account at the end of the month and record your bank statements in
-Odoo, you simply credit the Amazon intermediary account by the amount received.
+   You can do the same with vendor bills from Amazon dedicated to commissions. When you receive the
+   balance on your bank account at the end of the month and record your bank statements, credit the
+   Amazon intermediary account by the amount received.
 
 Follow your Amazon sales in sales reporting
 ===========================================
