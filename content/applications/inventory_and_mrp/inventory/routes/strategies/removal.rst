@@ -10,10 +10,10 @@ dates.
 
 When a product needs to be moved, Odoo finds available products that can be assigned to the
 transfer. The way Odoo assigns these products depends on the :guilabel:`Removal Strategy` defined in
-either the :guilabel:`Product Category` or the :guilabel:`Location`.
+either the :guilabel:`Product Category` or the :guilabel:`Location` dashboards.
 
 To change the :guilabel:`Removal Strategy`, go to :menuselection:`Inventory app --> Configuration
---> Locations` or :guilabel:`Product Categories`. Click on a :guilabel:`Location` or
+--> Locations` or :menuselection:`Product Categories`. Click on a :guilabel:`Location` or
 :guilabel:`Product Category`, and then click :guilabel:`Edit`. Change the product category
 :guilabel:`Force Removal Strategy` or the location :guilabel:`Removal Strategy` by clicking on the
 drop-down menu and selecting the desired removal strategy. After selecting the new removal strategy,
@@ -31,31 +31,38 @@ locations, picking and packing areas, and shipping/loading docks. While all prod
 leaving the warehouse might go through each of these locations at some point, removal strategies can
 have an effect on which products are taken, from where, and when.
 
-.. image:: removal/empty-dock.png
-   :align: center
-   :alt: Empty stock waiting for deliveries at the docks.
+In this example below, vendor trucks unload pallets of goods at the receiving docks. Then, operators
+scan the products in the receiving area, with the reception date and expiration date. After that,
+products are stored in their respective storage locations.
 
-In this example, vendor trucks unload pallets of goods at the docks. Then, operators scan the
-products in the receiving area, with the reception date and expiration date (if applicable). After
-that, products are stored in their respective locations.
-
-In Odoo, receiving products is done either in the *Inventory* or *Barcode* app. In either app, in
-the default kanban view, click :guilabel:`Receipts`, then, click on the individual receipt. Next, in
-the *Inventory* app, click :guilabel:`Edit`, then enter the received quantity in the
-:guilabel:`Done` column. Finally, click :guilabel:`Validate` to receive the products.
-
-If using the *Barcode* app, scan the product(s), update the quantity, and finally, click
-:guilabel:`Validate`. After products are received in Odoo, the products can be moved to their
-respective storage locations.
+.. note::
+   Not all products have expiration dates, but in this example, expiration dates apply.
 
 .. image:: removal/entering-stocks.png
    :align: center
    :alt: Products entering stock via the receiving area.
 
-Next, several orders for the same product are made, but in this example, the goods weren't received
-on the same day, and they don't have the same expiration date. In that situation, logically, sending
-the products with the closest expiration date is preferred. Depending on the chosen removal
-strategy, Odoo generates a transfer with the products that best fit the settings.
+In Odoo, receive products by navigating to the :menuselection:`Inventory` application, and in the
+kanban view, click on either the :guilabel:`Receipts` heading or :guilabel:`# TO PROCESS` button.
+On the :guilabel:`Receipts` dashboard, find and click on the individual receipt which will open the
+warehouse intake form. Click :guilabel:`Edit`, and then enter the received quantity in the
+:guilabel:`Done` column. To finish, :guilabel:`Validate` to receive the products and register them
+in the Odoo database.
+
+.. tip::
+   Receiving products can also be done within the Odoo *Barcode* application. If using the
+   *Barcode* app, scan the product(s), update the quantity, and finally, click :guilabel:`Validate`.
+   After products are received in Odoo, the products can then be moved to their respective storage
+   locations.
+
+Continuing with the same example, below, imagine several sales orders are made for the products
+received earlier, that use expiration dates. In this example, the products weren't received on the
+same day, and they don't have the same expiration date. In this situation, logically, sending
+products with the closest expiration date is preferred, instead of products received first or last.
+Using the chosen removal strategy configured for those products (in this example,
+:ref:`FEFO <routes/FEFO>`), Odoo generates a transfer for the products with the soonest expiration
+date to the picking area, then the packing area, and finally, to the shipping docks for delivery to
+the customer.
 
 .. image:: removal/packing-products.png
    :align: center
@@ -72,25 +79,24 @@ How each removal strategy works
 ===============================
 
 Removal strategies determine which products are taken from the warehouse when orders are confirmed.
-This is why selecting the correct removal strategies to best suit the needs of the warehouse is
-important.
 
 First In, First Out (FIFO)
 --------------------------
 
-When using a :guilabel:`First In, First Out (FIFO)` strategy, a demand for a product triggers a
-removal rule, which requests a transfer for the lot/serial number that entered the stock first (have
-been in stock for the longest time).
+When using a :guilabel:`First In, First Out (FIFO)` strategy, demand for a product triggers a
+removal rule, which requests a transfer for the lot/serial number that entered the stock first (and
+therefore, has been in stock for the longest time).
 
-For example, imagine there are three lots of nails in the warehouse. Those three have the following
-lot numbers: 00001, 00002, 00003, each with five boxes of nails in it.
+For example, imagine there are three lots of nails in the warehouse, and have the corresponding lot
+numbers: `00001`, `00002`, `00003`. Each lot has five boxes of nails in it.
 
-Lot 00001 entered the stock on May 23, lot 00002 on May 25, and lot 00003 on June 1. A customer
-orders six boxes on June 11.
+Lot `00001` entered the stock on May 23, lot `00002` on May 25, and lot `00003` on June 1. A
+customer orders six boxes on June 11.
 
-Using the :abbr:`FIFO (First In, First Out)` removal strategy, a transfer is requested for the five
-boxes from lot 00001 and one of the boxes in lot 00002, since lot 00001 entered the stock first. The
-box from lot 00002 is taken next because it has the oldest receipt date after lot 00001.
+Using the :abbr:`FIFO (First In, First Out)` removal strategy, a transfer request will pick the five
+boxes from lot `00001` first, and then from the boxes in lot `00002`, since lot `00001` entered the
+stock first. The box from lot `00002` is taken next because it has the oldest receipt date after lot
+`00001`.
 
 .. image:: removal/fifo-nails-picking.png
    :align: center
@@ -107,18 +113,18 @@ Every time an order for products with the :abbr:`LIFO (Last In, First Out)` meth
 transfer is created for the lot/serial number that has most recently entered the stock (the **last**
 lot/serial number that entered the warehouse's inventory).
 
-.. Warning::
+.. warning::
    In many countries, the :abbr:`LIFO (Last In, First Out)` removal strategy in banned, since it can
    potentially result in old, expired, or obsolete products being delivered to customers.
 
-For example, imagine there are three lots of screws in the warehouse. Those three have the following
-numbers: 10001, 10002, and 10003, each with 10 boxes of screws in it.
+For example, imagine there are three lots of boxes of screws in the warehouse, and have the
+corresponding lot numbers: `10001`, `10002`, and `10003`, each with 10 boxes of screws per lot.
 
-Lot 10001 entered the stock on June 1, lot 10002 on June 3, and lot 10003 on June 6. A customer
-orders seven boxes on June 8.
+Lot `10001` entered the stock on June 1, lot `10002` on June 3, and lot `10003` on June 6. A
+customer orders seven boxes on June 8.
 
 Using the :abbr:`LIFO (Last In, First Out)` removal strategy, a transfer is requested for seven
-boxes from lot 10003 because that lot is the last one to have entered the stock.
+boxes of screws from lot `10003` because that lot is the last one to have entered the stock.
 
 .. image:: removal/lifo-nails.png
    :align: center
@@ -136,16 +142,16 @@ products with this removal strategy assigned ensures that transfers are requeste
 the expiration date soonest to the order date.
 
 As an example, imagine there are three lots of six-egg boxes. Those three lots have the following
-lot numbers: 20001, 20002, and 20003, each with five boxes in it.
+lot numbers: `20001`, `20002`, and `20003`, each with five boxes in it.
 
-Lot 20001 entered the stock on July 1 and expires on July 15, lot 20002 entered on July 2 and
-expires on July 14, and lot 20003 entered on July 3 and expires on July 21. A customer orders six
+Lot `20001` entered the stock on July 1 and expires on July 15, lot `20002` entered on July 2 and
+expires on July 14, and lot `20003` entered on July 3 and expires on July 21. A customer orders six
 boxes on July 5.
 
 Using the :abbr:`FEFO (First Expired, First Out)` method, a transfer is requested for the five boxes
-from lot 20002 and one from lot 20001. All the boxes in lot 20002 are transferred because they have
-the earliest expiration date. The transfer also requests one box from lot 20001 because it has the
-next closest expiration date after lot 20002.
+from lot `20002` and one from lot `20001`. All the boxes in lot `20002` are transferred because they
+have the earliest expiration date. The transfer also requests one box from lot `20001` because it
+has the next closest expiration date after lot `20002`.
 
 .. image:: removal/egg-lots-removal.png
    :align: center
@@ -217,7 +223,7 @@ Report`, the three different receipts are listed with the amounts.
    :align: center
    :alt: View of the lots of white shirts in the inventory valuation report.
 
-Lot 000001 contains five shirts, lot 000002 contains three shirts, and lot 000003 contains two
+Lot `000001` contains five shirts, lot `000002` contains three shirts, and lot `000003` contains two
 shirts.
 
 To see the removal strategy in action, go to the :menuselection:`Sales app` and click
@@ -229,7 +235,7 @@ then click :guilabel:`Save`, then click :guilabel:`Confirm`.
 
 Once the sales order is confirmed, the delivery order will be created and linked to the picking, and
 the oldest lot numbers will be reserved thanks to the :abbr:`FIFO (First In, First Out)` strategy.
-All five shirts from lot 000001 and one shirt from lot 000002 will be selected to be sent to the
+All five shirts from lot `000001` and one shirt from lot `000002` will be selected to be sent to the
 customer.
 
 .. image:: removal/reserved-lots-FIFO.png
@@ -252,8 +258,8 @@ Valuation Report`, the three different receipts are listed with the amounts.
    :align: center
    :alt: View of the lots of cinder blocks in the inventory valuation report.
 
-Lot 000020 contains three cinder blocks, lot 000030 contains five cinder blocks, and lot 0000400
-contains four cinder blocks.
+Lot `000020` contains three cinder blocks, lot `000030` contains five cinder blocks, and lot
+`0000400` contains four cinder blocks.
 
 To see how the :abbr:`LIFO (Last In, First Out)` strategy works, first navigate to
 :menuselection:`Inventory app --> Configuration --> Product Categories`, and select a product
@@ -276,12 +282,14 @@ then click :guilabel:`Save`, then click :guilabel:`Confirm`.
 
 Once the sales order is confirmed, the delivery order will be created and linked to the picking, and
 the newest lot numbers will be reserved thanks to the :abbr:`LIFO (Last In, First Out)` strategy.
-All four cinder blocks from lot 0000400 and one cinder block from lot 000030 will be selected to be
-sent to the customer.
+All four cinder blocks from lot `0000400` and one cinder block from lot `000030` will be selected to
+be sent to the customer.
 
 .. image:: removal/reserved-lots-LIFO.png
    :align: center
    :alt: Two lots being reserved for sale with the LIFO strategy.
+
+.. _routes/FEFO:
 
 FEFO (First Expired, First Out)
 -------------------------------
@@ -315,9 +323,9 @@ In this example, there are three lots of hand cream. The creams are from the *Al
 category, where *FEFO* is set as the removal strategy. In the :guilabel:`Inventory Valuation
 Report`, the three different receipts are listed with the amounts.
 
-Lot 0000001 contains twenty tubes of hand cream, expiring on Sept 30, lot 0000002 contains ten tubes
-of hand cream, expiring on November 30, and lot 0000003 contains ten tubes of hand cream, expiring
-on October 31.
+Lot `0000001` contains twenty tubes of hand cream, expiring on Sept 30, lot `0000002` contains ten
+tubes of hand cream, expiring on November 30, and lot `0000003` contains ten tubes of hand cream,
+expiring on October 31.
 
 .. image:: removal/hand-cream-lots.png
    :align: center
@@ -353,8 +361,8 @@ example, `25.00`) in the :guilabel:`Quantity` field, then click :guilabel:`Save`
 
 Once the sales order is confirmed, the delivery order will be created and linked to the picking, and
 the lot numbers expiring first will be reserved thanks to the :abbr:`FEFO (First Expired, First
-Out)` strategy. All twenty tubes of hand cream from lot 0000001 and five from lot 0000003 will be
-selected to be sent to the customer, detailed in the :guilabel:`Detailed Operations` tab in the
+Out)` strategy. All twenty tubes of hand cream from lot `0000001` and five from lot `0000003` will
+be selected to be sent to the customer, detailed in the :guilabel:`Detailed Operations` tab in the
 :guilabel:`Sales Order`.
 
 .. image:: removal/pick-hand-cream.png
