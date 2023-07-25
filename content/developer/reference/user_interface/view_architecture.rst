@@ -357,7 +357,7 @@ can have the following attributes:
   password and that its data shouldn't be displayed
 
 :kanban_view_ref:
-  string_ (optional) defined by the pattern: ``%(ADDON.MODEL_view_TYPE)s`` (target the :doc:`view reference <view_record>`)
+  string_ (optional) defined by the pattern: ``%(ADDON.MODEL_view_TYPE)s`` (target the :doc:`view reference <view_records>`)
 
   for opening specific kanban view when selecting records from m2o/m2m in mobile
   environment
@@ -2126,7 +2126,7 @@ Filters can have the following attributes:
 
   logical name for the filter, can be used to :ref:`enable it by default
   <reference/user_interface/view_architecture/search/defaults>`, can also be used as
-  :ref:`inheritance hook <reference/view_record/inheritance>`
+  :ref:`inheritance hook <reference/view_records/inheritance>`
 
 :help:
   string_ (optional)

@@ -305,7 +305,7 @@ requests, the view with the correct type and the lowest priority will be
 used (so the lowest-priority view of each type is the default view for that
 type).
 
-:ref:`View inheritance <reference/view_record/inheritance>` allows altering views
+:ref:`View inheritance <reference/view_records/inheritance>` allows altering views
 declared elsewhere (adding or removing content).
 
 Generic view declaration

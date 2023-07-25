@@ -1,3 +1,3 @@
 # developer/reference
 
-developer/reference/backend/views.rst developer/reference/user_interface/view_record.rst
+developer/reference/backend/views.rst developer/reference/user_interface/view_records.rst

@@ -20,7 +20,7 @@ words, such data is often necessary for the module to work properly. This data w
 installed when installing the module.
 
 We already met technical data previously since we have defined :doc:`views
-<../reference/user_interface/view_record>` and :doc:`actions <../reference/backend/actions>`. Those
+<../reference/user_interface/view_records>` and :doc:`actions <../reference/backend/actions>`. Those
 are one kind of master data.
 
 On top of technical data, business data can be defined, e.g. countries, currencies, units of measure,
