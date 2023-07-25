@@ -1,5 +1,3 @@
-.. _user_interface/view_architecture:
-
 =================
 View Architecture
 =================
@@ -335,7 +333,7 @@ can have the following attributes:
 
   `HTML class`_ to set on the generated element.
 
-  The styling use the Bootstrap_ framework and :ref:`UI icons <reference/user_interface/icons>`.
+  The styling use the Bootstrap_ framework and :doc:`UI icons <icons>`.
 
   Below are the common Odoo_ classes:
 
@@ -359,7 +357,7 @@ can have the following attributes:
   password and that its data shouldn't be displayed
 
 :kanban_view_ref:
-  string_ (optional) defined by the pattern: ``%(ADDON.MODEL_view_TYPE)s`` (target the :ref:`view reference <reference/view_record>`)
+  string_ (optional) defined by the pattern: ``%(ADDON.MODEL_view_TYPE)s`` (target the :doc:`view reference <view_record>`)
 
   for opening specific kanban view when selecting records from m2o/m2m in mobile
   environment
@@ -456,7 +454,7 @@ following attributes:
 :icon:
   string_ (optional)
 
-  icon to use to display the button (:ref:`UI icons <reference/user_interface/icons>`)
+  icon to use to display the button (:doc:`UI icons <icons>`)
 
   .. code-block:: xml
 
@@ -1573,7 +1571,7 @@ Below is a possible structure and the representation of its rendering.
 :icon:
   string_ (optional)
 
-  icon to use to display the button (:ref:`UI icons <reference/user_interface/icons>`)
+  icon to use to display the button (:doc:`UI icons <icons>`)
 
   .. code-block:: xml
 

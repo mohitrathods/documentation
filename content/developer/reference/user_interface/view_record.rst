@@ -1,6 +1,3 @@
-
-.. _reference/view_record:
-
 ===========
 View Record
 ===========
@@ -96,7 +93,7 @@ View objects expose a number of fields. They are optional unless specified other
 :arch:
   :class:`~odoo.fields.Text`
 
-  The description of the view layout depending on :ref:`view type <user_interface/view_architecture>`
+  The description of the view layout depending on :doc:`view type <view_architecture>`
 
 :groups_id:
   :class:`~odoo.fields.Many2many` -> :class:`~odoo.addons.base.models.res_users.Groups`

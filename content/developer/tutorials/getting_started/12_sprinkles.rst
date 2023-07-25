@@ -16,7 +16,8 @@ This chapter covers a very small subset of what can be done in the views. Do not
 read the reference documentation for a more complete overview.
 
 **Reference**: the documentation related to this chapter can be found in
-:ref:`reference/view_record` and :ref:`user_interface/view_architecture`.
+:doc:`../../reference/user_interface/view_record` and
+:doc:`../../reference/user_interface/view_architecture`.
 
 Inline Views
 ============
