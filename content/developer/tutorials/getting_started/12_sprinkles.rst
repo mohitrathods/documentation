@@ -386,7 +386,7 @@ Search
 ------
 
 **Reference**: the documentation related to this section can be found in
-:ref:`reference/user_interface/view_architecture/search` and :ref:`reference/user_interface/view_architecture/search/defaults`.
+:ref:`reference/view_architecture/search` and :ref:`reference/view_architecture/search/defaults`.
 
 .. note::
 

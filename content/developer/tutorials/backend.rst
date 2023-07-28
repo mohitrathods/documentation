@@ -1289,7 +1289,7 @@ A report is a combination two elements:
      the *report* contextual menu rather than the *action* one. There is no
      technical difference but putting elements in the right place helps users.
 
-* A standard :ref:`QWeb view <reference/user_interface/view_architecture/qweb>` for the actual report:
+* A standard :ref:`QWeb view <reference/view_architecture/qweb>` for the actual report:
 
   .. code-block:: xml
 

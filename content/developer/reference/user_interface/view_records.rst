@@ -33,31 +33,30 @@ all caps.
 View types
 ==========
 
-- :ref:`Form <reference/user_interface/view_architecture/form>`
-    Display and edit the data from a single record.
-- :ref:`List <reference/user_interface/view_architecture/list>`
-    View and edit multiple records.
-- :ref:`Search <reference/user_interface/view_architecture/search>`
-    Apply filters and perform searches. The results are displayed in the current list, kanban...
-    view.
-- :ref:`Kanban <reference/user_interface/view_architecture/kanban>`
-    Display records as "cards", configurable as a small template.
-- :ref:`Qweb <reference/user_interface/view_architecture/qweb>`
-    Templating of reporting, website...
-- :ref:`Graph <reference/user_interface/view_architecture/graph>`
-    Visualize aggregations over a number of records or record groups.
-- :ref:`Pivot <reference/user_interface/view_architecture/pivot>`
-    Display aggregations as a `pivot table <https://en.wikipedia.org/wiki/Pivot_table>`_.
-- :ref:`Calendar <reference/user_interface/view_architecture/calendar>`
-    Display records as events in a daily, weekly, monthly, or yearly calendar.
-- :ref:`Cohort <reference/user_interface/view_architecture/cohort>` |enterprise|
-    Display and understand the way some data changes over a period of time.
-- :ref:`Gantt <reference/user_interface/view_architecture/gantt>` |enterprise|
-    Display records as a Gantt chart.
-- :ref:`Grid <reference/user_interface/view_architecture/grid>` |enterprise|
-    Display computed information in numerical cells; are hardly configurable.
-- :ref:`Map <reference/user_interface/view_architecture/map>` |enterprise|
-    Display records on a map, and the routes between them.
+:ref:`Form <reference/view_architecture/form>`
+  Display and edit the data from a single record.
+:ref:`List <reference/view_architecture/list>`
+  View and edit multiple records.
+:ref:`Search <reference/view_architecture/search>`
+  Apply filters and perform searches. The results are displayed in the current list, kanban... view.
+:ref:`Kanban <reference/view_architecture/kanban>`
+  Display records as "cards", configurable as a small template.
+:ref:`Qweb <reference/view_architecture/qweb>`
+  Templating of reporting, website...
+:ref:`Graph <reference/view_architecture/graph>`
+  Visualize aggregations over a number of records or record groups.
+:ref:`Pivot <reference/view_architecture/pivot>`
+  Display aggregations as a `pivot table <https://en.wikipedia.org/wiki/Pivot_table>`_.
+:ref:`Calendar <reference/view_architecture/calendar>`
+  Display records as events in a daily, weekly, monthly, or yearly calendar.
+:ref:`Cohort <reference/view_architecture/cohort>` |enterprise|
+  Display and understand the way some data changes over a period of time.
+:ref:`Gantt <reference/view_architecture/gantt>` |enterprise|
+  Display records as a Gantt chart.
+:ref:`Grid <reference/view_architecture/grid>` |enterprise|
+  Display computed information in numerical cells; are hardly configurable.
+:ref:`Map <reference/view_architecture/map>` |enterprise|
+  Display records on a map, and the routes between them.
 
 .. |enterprise| raw:: html
 
