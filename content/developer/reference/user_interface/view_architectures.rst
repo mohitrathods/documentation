@@ -1,187 +1,174 @@
-=================
-View architecture
-=================
+:custom-css: showcase_tables.css
 
-Generic view
-============
+==================
+View architectures
+==================
 
-.. _reference/view_architecture/options:
+.. todo:: info on create/... in each view type doc
 
-Options / Attributes
---------------------
+Generic architecture
+====================
 
-The different view types have a wide variety of attributes allowing customizations of
-the generic behaviors. Some main attributes will be explained here. They do not all have
-an impact on all view types.
+TODO briefly explain
 
-.. todo:: info on create/...
+.. note::
+   The current context and user access rights may impact the view abilities.
 
-:sample:
-  boolean_ (default: ``False``)
+.. seealso::
+   :doc:`view_records`
 
-  (``kanban`` & ``list`` & ``gantt`` & ``graph`` & ``pivot`` & ``cohort``)
-
-  Populate the view with a set of sample records if none are found for the current model.
-  This attribute is false by default.
-
-  These fake records will have heuristics for certain field names/models. For example,
-  a field 'display_name' on the model 'res.users' will be populated with sample people names
-  while an 'email' field will be in the form 'firstname.lastname@sample.demo'.
-
-  The user will not be able to interact with these data and they will be discarded as soon as
-  an action is performed (record created, column added, etc.)
-
-:banner_route:
-  path_ (optional)
-
-  a route address to be fetched and prepended to the view.
-
-  If this attribute is set, the
-  :ref:`controller route url<reference/controllers>` will be fetched and
-  displayed above the view. The json response from the controller should
-  contain an "html" key.
-
-  If the html contains a stylesheet <link> tag, it will be
-  removed and appended to <head>.
-
-  To interact with the backend you can use <a type="action"> tags. Please take
-  a look at the documentation of the _onActionClicked method of
-  AbstractController (*addons/web/static/src/js/views/abstract_controller.js*)
-  for more details.
-
-  Only views extending AbstractView and AbstractController can use this
-  attribute, like :ref:`reference/view_architecture/form`, :ref:`reference/view_architecture/kanban`,
-  :ref:`reference/view_architecture/list`, ...
-
-  Example:
-
-  .. code-block:: xml
-
-      <tree banner_route="/module_name/hello" />
-
-  .. code-block:: python
-
-      class MyController(odoo.http.Controller):
-          @http.route('/module_name/hello', auth='user', type='json')
-          def hello(self):
-              return {
-                  'html': """
-                      <div>
-                          <link href="/module_name/static/src/css/banner.css"
-                              rel="stylesheet">
-                          <h1>hello, world</h1>
-                      </div> """
-              }
-
-.. note:: The current context and user access rights may also impact the view abilities.
-
-.. _reference/view_architecture/python_expression:
+.. _reference/view_architectures/python_expression:
 
 Python expression
------------------
+=================
 
-When evaluating node attributes, e.g. the ``readonly`` modifier, it is possible to
-provide a **python expression** that will be executed in an environment that has access
-to the following variables:
+When evaluating node attributes, e.g. the `readonly` modifier, it is possible to provide a **Python
+expression** that will be executed in an environment that has access to the following variables:
 
-* ``context``: dict_ with the values of the current view context;
-* ``uid``: integer_ the id of the current user;
-* ``today``: string_ the current local date as a string of the form ``YYYY-MM-DD``;
-* ``now``: string_ same as ``today`` with the addition of the current time. This value is formatted as ``YYYY-MM-DD hh:mm:ss``.
+- The names of all fields present in the current view, containing the value of the current record,
+  except for `column_invisible` in :ref:`list view <reference/view_architectures/list/field>`;
+  relational fields are given as a list of IDs;
+- `parent`: the record that refers to the container; only inside sub-views of :ref:`relational
+  fields <studio/fields/relational-fields>`;
+- `context (dict)`: the current view's context;
+- `uid (int)`: the id of the current user;
+- `today (str)`: the current local date in the `YYYY-MM-DD` format;
+- `now (str)`: the current local datetime in the `YYYY-MM-DD hh:mm:ss` format.
 
-All fields present in the current view (e.g. :ref:`form view <reference/view_architecture/form>`,
-except for the :ref:`column_invisible in list view <reference/view_architecture/list/field>`),
-are also accessible in the variables and contain the value of the current record.
-Relational fields are given as a list of ids.
+.. example::
+   .. code-block:: xml
 
-A ``parent`` variable, that is record that referes to the container, is also available inside sub-views of :ref:`relational fields <studio/fields/relational-fields>`.
+      <field name="field_a" readonly="True"/>
+      <field name="field_b" invisible="context.get('show_me') and field_a == 4"/>
 
-Examples:
+.. example::
+   .. code-block:: xml
 
-.. code-block:: xml
-
-    <field name="field_a" readonly="True"/>
-    <field name="field_b" invisible="context.get('show_me') and field_a == 4"/>
-
-.. code-block:: xml
-
-    <field name="field_a"/>
-    <field name="x2m">
-        <!-- sub-view -->
-        <form>
-            <field name="field_b" invisible="parent.field_a"/>
-        </form>
-    </field>
+      <field name="field_a"/>
+      <field name="x2m">
+          <!-- sub-view -->
+          <form>
+              <field name="field_b" invisible="parent.field_a"/>
+          </form>
+      </field>
 
 .. ....................................................................
 
-.. _reference/view_architecture/form:
+.. _reference/view_architectures/form:
 
 Form
 ====
 
-Form views are used to display the data from a single record. Their root element is
-``<form>``. They are composed of regular HTML_ with additional structural and semantic
-components.
+Form views are used to display the data from a single record. They are composed of regular HTML_
+with additional semantic and structural components.
+
+The root element of form views is `form`.
 
 .. code-block:: xml
 
-  <form>
-    ...
-  </form>
+   <form>
+       ...
+   </form>
 
-Optional attributes_ are added on root element ``<form>`` to customize the view.
+.. _reference/view_architectures/form/root:
 
-:string:
-  string_ (default: ``''``)
+Root attributes
+---------------
 
-  This view title is displayed only if you open an action that has no name and
-  whose target is 'new' (opening a dialog)
+Optional attributes_ can be added to the root element `form` to customize the view.
 
-:create:
-  boolean_ (default: ``True``)
+.. attribute:: string
+   :noindex:
 
-  Disable/enable record creation on the view.
+   The view title. It is displayed only if you open an action that has no name and whose target is
+   `new` (opening a dialog).
 
-:edit:
-  boolean_ (default: ``True``)
+   :requirement: Optional
+   :type: str
+   :default: `''`
 
-  Disable/enable record editing on the view.
+.. attribute:: create
+   :noindex:
 
-:duplicate:
-  boolean_ (default: ``True``)
+   Disable/enable record creation on the view.
 
-  Disable/enable record duplication on the view through the **Action** dropdown.
+   :requirement: Optional
+   :type: bool
+   :default: `True`
 
-:delete:
-  boolean_ (default: ``True``)
+.. attribute:: edit
+   :noindex:
 
-  Disable/enable record deletion on the view through the **Action** dropdown.
+   Disable/enable record editing on the view.
 
-:js_class:
-  string_ (optional)
+   :requirement: Optional
+   :type: bool
+   :default: `True`
 
-  Name of the javascript component the webclient will instantiating instead of
-  the form the view.
+.. attribute:: duplicate
+   :noindex:
 
-:disable_autofocus:
-  boolean_ (default: ``False``)
+   Disable/enable record duplication on the view through the **Action** dropdown.
 
-  Disable automatic focussing of the first field in the view.
+   :requirement: Optional
+   :type: bool
+   :default: `True`
 
-.. _reference/view_architecture/form/semantic:
+.. attribute:: delete
+   :noindex:
+
+   Disable/enable record deletion on the view through the **Action** dropdown.
+
+   :requirement: Optional
+   :type: bool
+   :default: `True`
+
+.. attribute:: js_class
+   :noindex:
+
+   Name of the JavaScript component the webclient will instantiate instead of the form view.
+
+   :requirement: Optional
+   :type: str
+   :default: `''`
+
+.. attribute:: disable_autofocus
+   :noindex:
+
+   Disable automatic focusing on the first field in the view.
+
+   :requirement: Optional
+   :type: bool
+   :default: `False`
+
+.. include:: view_architectures/attribute_banner_route.rst
+
+.. _reference/view_architectures/form/semantic:
 
 Semantic components
 -------------------
 
 Semantic components tie into the Odoo system and allow interaction with it.
-remark: (with the remark style)
+
+Form views accept the following children semantic components: :ref:`field
+<reference/view_architectures/form/field>`, :ref:`label <reference/view_architectures/form/label>`,
+:ref:`button <reference/view_architectures/form/button>`,
+:ref:`reference/view_architectures/form/chatter`, and
+:ref:`reference/view_architectures/form/attachment`.
+
 Placeholders are denoted in all caps.
 
-.. _reference/view_architecture/form/field:
+.. _reference/view_architectures/form/field:
 
-<field>: render formatted values
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+`field`: render formatted values
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The `field` element renders (and allows editing of, possibly) a single field of the current record.
+
+Using the same field multiple times in a form view is supported, and the fields can receive
+different values for the attributes `invisible` and `readonly`. These fields may have the same
+values but can be displayed differently. However, the behavior is not guaranteed when several fields
+exist with different values for the 'required' modifier.
 
 .. code-block:: xml
 
@@ -189,810 +176,908 @@ Placeholders are denoted in all caps.
     <field name="FIELD_NAME"/>
   </form>
 
-renders (and allow editing of, possibly) a single field of the current
-record. Using several times a field in a form view is supported and the
-fields can receive different values for modifiers 'invisible' and
-'readonly'. This fields have the same values but can be display
-differentaly. However, the behavior is not guaranteed when several
-fields exist with different values for modifier 'required'. ``<field>``
-can have the following attributes:
+The `field` element can have the following attributes:
 
-:name:
-  string_ (mandatory) :ref:`model <reference/orm/model>` field name
+.. attribute:: name
+   :noindex:
 
-  the name of the field to render
+   The name of the :ref:`model <reference/orm/model>` field to render.
 
-:id:
-  string_ (optional)
+   :type: str
+   :requirement: Mandatory
 
-  the node id. Useful when there are several occurrences of the same field in
-  the view (see ``label`` component below). Default is the field name.
+.. attribute:: id
+   :noindex:
 
-:widget:
-  string_ (optional)
+   The node id. Useful when there are several occurrences of the same field in the view (see
+   :ref:`reference/view_architectures/form/label`).
 
-  fields have a default rendering based on their type
-  (e.g. :class:`~odoo.fields.Char`, :class:`~odoo.fields.Many2one`).
+   :type: str
+   :requirement: Optional
+   :default: The field name
 
-  The ``widget`` attributes allows using a different rendering method and context.
-  See more information in :ref:`reference/js/widgets`
+.. attribute:: string
+   :noindex:
 
-  .. code-block:: xml
+   The label of the field.
 
-    <field name="tag_ids" widget="many2many_tags"/>
+   :type: str
+   :requirement: Optional
+   :default: The `string` attribute of the model's field
 
-:options:
-  :ref:`python expression <reference/view_architecture/python_expression>` that evaluates to a dict_ (default: ``{}``)
+.. attribute:: help
+   :noindex:
 
-  JSON object specifying configuration option for the field's widget
-  (including default widgets)
+   The tooltip displayed when hovering the field or its label.
 
-  .. code-block:: xml
+   :type: str
+   :requirement: Optional
+   :default: `''`
 
-    <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'FIELD_NAME', 'no_quick_create': True}"/>
+.. attribute:: widget
+   :noindex:
 
-:groups:
-  `Comma-separated values`_ (optional) whose choices are the :class:`~odoo.addons.base.models.res_users.Groups` reference
+   The rendering method and context to use in place of the default one assigned to the field's type
+   (e.g., :class:`~odoo.fields.Char`, :class:`~odoo.fields.Many2one`). See
+   :ref:`reference/js/widgets`.
 
-  only displays the field for specific users
+   .. example::
+      .. code-block:: xml
 
-  .. code-block:: xml
+         <field name="tag_ids" widget="many2many_tags"/>
 
-    <field name="fname" groups="base.group_no_one,!base.group_multi_company"/>
+   :type: str
+   :requirement: Optional
+   :default: `''`
 
-:domain:
-  :ref:`python expression <reference/view_architecture/python_expression>` that evaluates to a :ref:`reference/orm/domains` (default: ``[]``)
+.. attribute:: options
+   :noindex:
 
-  for relational fields only, filters to apply when displaying existing
-  records for selection
+   The configuration options for the field's widget (including default widgets), as a Python
+   expression that evaluates to a dict.
 
-  .. code-block:: xml
+   .. example::
+      .. code-block:: xml
 
-    <field name="fname_id" domain="[('fname_a', '=', parent.fname_b)]"/>
+         <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'FIELD_NAME', 'no_quick_create': True}"/>
 
-:context:
-  :ref:`python expression <reference/view_architecture/python_expression>` that evaluates to a dict_ (default: ``{}``)
+   :type: :ref:`Python expression <reference/view_architectures/python_expression>`
+   :requirement: Optional
+   :default: `{}`
 
-  for relational fields only, context to pass when fetching possible values.
-  The default values ``default_FIELD_NAME`` (e.g. ``{'default_name': 'toto'}``) will be used to
-  create the linked record. ``OTHER_BUSINESS_KEY`` is every keys depending of the model/module.
+.. attribute:: readonly
+   :noindex:
 
-  .. code-block:: xml
+   Whether the field can be modified by the user (`False`) or is read-only (`True`), as a Python
+   expression that evaluates to a bool.
 
-    <field name="fname" context="{
-        'TYPE_view_ref': 'ADDON.MODEL_view_TYPE',
-        'group_by': 'FIELD_NAME',
-        'default_FIELD_NAME': ANY,
-        'search_default_FIELD_NAME': True,
-        'OTHER_BUSINESS_KEY': ANY,
-      }"/>
+   .. example::
+      .. code-block:: xml
 
-:readonly:
-  :ref:`python expression <reference/view_architecture/python_expression>` that evaluates to a boolean_ (default: ``False``)
+         <field name="fname_a" readonly="True"/>
+         <field name="fname_b" readonly="name_a in [fname_b, parent.fname_d]"/>
 
-  Whether the field can be modified by the user (``False``) or is read only (``True``).
+   :type: :ref:`Python expression <reference/view_architectures/python_expression>`
+   :requirement: Optional
+   :default: `False`
 
-  .. code-block:: xml
+.. attribute:: required
+   :noindex:
 
-    <field name="fname_a" readonly="True"/>
-    <field name="fname_b" readonly="name_a in [fname_b, parent.fname_d]"/>
+   Whether the field can be left empty (`False`) or must be set (`True`), as a Python expression
+   that evaluates to a bool.
 
-:required:
-  :ref:`python expression <reference/view_architecture/python_expression>` that evaluates to a boolean_ (default: ``False``)
+   .. example::
+      .. code-block:: xml
 
-  Whether the field can be left empty (``False``) or must be set (``True``).
+         <field name="fname_a" required="True"/>
+         <field name="fname_b" required="fname_c != 3 and fname_a == parent.fname_d"/>
 
-  .. code-block:: xml
+   :type: :ref:`Python expression <reference/view_architectures/python_expression>`
+   :requirement: Optional
+   :default: `False`
 
-    <field name="fname_a" required="True"/>
-    <field name="fname_b" required="fname_c != 3 and fname_a == parent.fname_d"/>
+.. include:: view_architectures/attribute_invisible.rst
 
-:invisible:
-  :ref:`python expression <reference/view_architecture/python_expression>` that evaluates to a boolean_ (default: ``False``)
+.. include:: view_architectures/attribute_groups.rst
 
-  Whether the field can be visible (``False``) or must be hide (``True``).
+.. attribute:: domain
+   :noindex:
 
-  There are two uses for field ``invisible`` attribute:
+   The filters to apply when displaying existing records for selection, as a Python expression that
+   to a :ref:`domain <reference/orm/domains>`.
 
-  * Usability: not to overload the view and to make it easier for the user to read depending on the content;
-  * Technical: fetched by the webclient for evaluating :ref:`python expression <reference/view_architecture/python_expression>`
+   .. example::
+      .. code-block:: xml
 
-  .. code-block:: xml
+         <field name="fname" domain="[('fname_a', '=', parent.fname_b)]"/>
 
-    <field name="fname_a" invisible="True"/> <!-- necessary to evaluate invisible attribute of 'fname_b' field -->
-    <field name="fname_b" invisible="fname_c != 3 and fname_a == parent.fname_d"/>
-    <field name="fname_c"/>
+   :type: :ref:`Python expression <reference/view_architectures/python_expression>`
+   :requirement: Optional
+   :default: `[]`
+   :scope: Relational fields
 
-:nolabel:
-  boolean_ (default: ``False``)
+.. attribute:: context
+   :noindex:
 
-  if ``True``, do not automatically display the field's label, only
-  makes sense if the field is a direct child of a ``group`` element
+   .. todo:: extensive documentation on all the magic context values (TYPE_view_ref, group_by,
+             search_default_FIELD...
 
-:placeholder:
-  string_ (optional)
+   The context to use when fetching possible values, as a Python expression that evaluates to a
+   dict.
 
-  help message to display in *empty* fields. Can replace field labels in
-  complex forms. *Should not* be an example of data as users are liable to
-  confuse placeholder text with filled fields
+   It accepts default field values `default_FIELD_NAME` (e.g. `{'default_name': 'toto'}`) that are
+   used to create the linked record.
 
-:mode:
-  `Comma-separated values`_ (default: ``tree``) whose choices are: ``kanban``, ``from``, ``tree``
+   .. example::
+      .. code-block:: xml
 
-  for :class:`~odoo.fields.One2many`, display mode (view type) to use for
-  the field's linked records. One of ``tree``, ``form``, ``kanban`` or
-  ``graph``. The default is ``tree`` (a list display)
+         <field name="fname" context="{
+             'TYPE_view_ref': 'ADDON.MODEL_view_TYPE',
+             'group_by': 'FIELD_NAME',
+             'default_FIELD_NAME': ANY,
+             'search_default_FIELD_NAME': True,
+             'OTHER_BUSINESS_KEY': ANY,
+           }"/>
 
-:help:
-  string_ (optional)
+   :type: :ref:`Python expression <reference/view_architectures/python_expression>`
+   :requirement: Optional
+   :default: `{}`
+   :scope: Relational fields
 
-  tooltip displayed for users when hovering the field or its label
+.. attribute:: nolabel
+   :noindex:
 
-:class:
-  string_ (optional) `HTML class`_
+   Whether the field label should be hidden.
 
-  `HTML class`_ to set on the generated element.
+   :type: bool
+   :requirement: Optional
+   :default: `False`
+   :scope: Fields that are a direct child of a `group` element
 
-  The styling use the Bootstrap_ framework and :doc:`UI icons <icons>`.
+.. attribute:: placeholder
+   :noindex:
 
-  Below are the common Odoo_ classes:
+   The help message to display on *empty* fields. It can replace field labels in complex forms.
+   However, it *should not* be an example of data, as users may confuse placeholder text with filled
+   fields.
 
-  ``oe_inline``: prevent the usual line break following fields and limit their span.
+   :type: str
+   :requirement: Optional
+   :default: `''`
 
-  ``oe_left``, ``oe_right``: floats_ the field to the corresponding direction
+.. attribute:: mode
+   :noindex:
 
-  ``oe_read_only``, ``oe_edit_only``: only displays the field in the corresponding form mode
+   The comma-separated list of display modes (view types) to use for the field's linked records.
+   Allowed modes are: `tree`, `form`, `kanban`, and `graph`.
 
-  ``oe_avatar``: for image fields, displays images as "avatar" (square, 90x90 maximum size, some image decorations)
+   :type: str
+   :default: `tree`
+   :scope: :class:`~odoo.fields.One2many` fields
 
-:filename:
-  string_ (optional)
+.. include:: view_architectures/attribute_class.rst
 
-  for binary fields, name of the related field providing the name of the file
+.. attribute:: filename
+   :noindex:
 
-:password:
-  boolean_ (default: ``False``)
+   The name of the related field providing the name of the file.
 
-  if is ``True`` indicates that a :class:`~odoo.fields.Char` field stores a
-  password and that its data shouldn't be displayed
+   :type: str
+   :requirement: Optional
+   :default: `''`
+   :scope: :class:`~odoo.fields.Binary` fields
 
-:kanban_view_ref:
-  string_ (optional) defined by the pattern: ``%(ADDON.MODEL_view_TYPE)s`` (target the :doc:`view reference <view_records>`)
+.. attribute:: password
+   :noindex:
 
-  for opening specific kanban view when selecting records from m2o/m2m in mobile
-  environment
+   Whether the field stores a password and thus its data should not be displayed.
 
-:default_focus:
-  boolean_ (default: ``False``)
+   :type: bool
+   :requirement: Optional
+   :default: `False`
+   :scope: :class:`~odoo.fields.Char` fields
 
-  If True, defines that this field is the fields that will be focussed when the view
-  opens. Cannot be present on more than one field of a view.
+.. attribute:: kanban_view_ref
+   :noindex:
+
+   The XMLID of the specific Kanban :doc:`view record <view_records>` that should be used when
+   selecting records in a mobile environment.
+
+   :type: str
+   :requirement: Optional
+   :default: `''`
+   :scope: Relational fields
+
+.. attribute:: default_focus
+   :noindex:
+
+   Whether the field is focused when the view opens. It can be applied to only one field of a view.
+
+   :type: bool
+   :requirement: Optional
+   :default: `False`
 
 .. note::
-  :ref:`Relational fields <studio/fields/relational-fields>` node can contain specific
-  subviews.
+   :ref:`Relational fields <studio/fields/relational-fields>` nodes can contain specific subviews.
 
-  .. code-block:: xml
+   .. example::
+      .. code-block:: xml
 
-    <field name="children_ids">
-      <tree>
-        <field name="name"/>
-      </tree>
-      <form>
-        <field name="id"/>
-        <field name="name"/>
-      </form>
-    </field>
+         <field name="children_ids">
+            <tree>
+               <field name="name"/>
+            </tree>
+            <form>
+               <field name="id"/>
+               <field name="name"/>
+            </form>
+         </field>
 
-.. _reference/view_architecture/form/label:
+.. _reference/view_architectures/form/label:
 
-<label>: displays other field label
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+`label`: display field labels
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When a :ref:`field <reference/view_architectures/form/field>` component is not placed directly
+inside a :ref:`group <reference/view_architectures/form/group>`, or when its `nolabel` attribute is
+set, the field's label is not automatically displayed alongside its value. The `label` component is
+the manual alternative of displaying the label of a field.
 
 .. code-block:: xml
 
     <form>
-      <div class="col col-md-auto">
-        <label for="FIELD_NAME" string="LABEL"/>
-        <div>
-          <field name="FIELD_NAME" class="oe_inline"/>
+        <div class="col col-md-auto">
+            <label for="FIELD_NAME" string="LABEL"/>
+            <div>
+                <field name="FIELD_NAME" class="oe_inline"/>
+            </div>
         </div>
-      </div>
     </form>
 
+The `label` element can have the following attributes:
 
-when a :ref:`field <reference/view_architecture/form/field>` component
-isn't placed directly inside a :ref:`group <reference/view_architecture/form/group>`,
-or when its ``nolabel`` attribute is set, the field's label isn't
-automatically displayed alongside its value. The ``<label>`` component is the
-manual alternative of displaying the label of a field. ``<label>`` can have the
-following attributes:
+.. attribute:: for
+   :noindex:
 
-:for:
-  string_ (mandatory)
+   The reference to the field associated with the label. It can be either the name of the field, or
+   its id (the `id` attribute set on the :ref:`field <reference/view_architectures/form/field>`).
 
-  the reference to the field associated with the label. Can be either the name
-  of a field, or its id (``id`` attribute set on the
-  :ref:`field <reference/view_architecture/form/field>`). When there are several
-  occurrences of the same field in the view, and there are several ``label``
-  components associated with these :ref:`field <reference/view_architecture/form/field>`
-  nodes, those labels must have unique ``for`` attributes (in this case
-  referencing the ``id`` attribute of the corresponding
-  :ref:`field <reference/view_architecture/form/field>` nodes).
+   When there are several occurrences of the same field in the view, and there are several `label`
+   components associated with these field nodes, these labels must have unique `for` attribute; in
+   this case, referencing the `id` attribute of the corresponding field nodes.
 
-:string:
-  string_ (default: ``''``)
+   :type: str
+   :requirement: Mandatory
 
-  the label to display. Display the field's label (coming from the field
-  definition in the model) by default.
+.. attribute:: string
+   :noindex:
 
-:class:
-  string_ `HTML class`_ (default: ``''``)
+   The label to display.
 
-  same as for :ref:`field <reference/view_architecture/form/field>` component.
+   :type: str
+   :requirement: Optional
+   :default: The field's label coming from the field definition on the model
 
-:invisible:
-  :ref:`python expression <reference/view_architecture/python_expression>` (default: ``False``)
+.. include:: view_architectures/attribute_class.rst
 
-  same as for :ref:`field <reference/view_architecture/form/field>` component.
+.. include:: view_architectures/attribute_invisible.rst
 
+.. _reference/view_architectures/form/button:
 
-.. _reference/view_architecture/form/button:
-
-<button>: displays button to call action
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+`button`: display action buttons
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: xml
 
-  <form>
-    <button type="object" name="ACTION" string="LABEL"/>
-    <button type="object" name="ACTION" icon="FONT_AWESOME"/>
-  </form>
+   <form>
+       <button type="object" name="ACTION" string="LABEL"/>
+       <button type="object" name="ACTION" icon="FONT_AWESOME"/>
+   </form>
 
-``<button>`` can have the following attributes:
+The `button` element can have the following attributes:
+
+.. attribute:: type
+   :noindex:
+
+   The type of the button indicating how it behaves. It can have two different values:
+
+   .. attribute:: object
+      :noindex:
+
+      Call a method on the view's model. The button's `name` is the method that is called with the
+      current record ID and the current `context`.
+
+      The web client also supports a `@args`, which allows providing additional arguments as JSON.
+
+   .. attribute:: action
+      :noindex:
+
+      Load and execute an `ir.actions` action record. The button's `name` is the XMLID of the
+      action. The `context` is extended with the view's model (as `active_model`) and with the
+      current record (as `active_id`).
+
+   .. example::
+      .. code-block:: xml
+
+         <button type="object" name="action_create_new" string="Create document"/>
+         <button type="action" name="%(addon.action_create_view)d" string="Create and Edit"/>
+
+   :type: str
+   :requirement: Mandatory
+
+.. attribute:: name
+   :noindex:
+
+   The method to call if the `type` is `object`, or the XMLID of the action to load if the `type` is
+   `action`.
+
+   :type: str
+   :requirement: Optional
+   :default: `''`
+
+.. attribute:: string
+   :noindex:
+
+   The button's text if there is no `icon`, the `alt` text for the icon otherwise.
+
+   .. example::
+      .. code-block:: xml
+
+         <button type="object" name="action_create_new" string="Create document"/>
+
+   :type: str
+   :requirement: Optional
+   :default: `''`
 
 .. attribute:: icon
+   :noindex:
 
-  icon to use to display the button (:doc:`UI icons <icons>`)
+   The icon to use to display the button. See :doc:`icons` for the reference list.
 
-  .. code-block:: xml
+   .. example::
+      .. code-block:: xml
 
-    <button type="object" name="remove" icon="fa-trash"/>
+         <button type="object" name="remove" icon="fa-trash"/>
 
-:string:
-  string_ (default: ``''``)
+   :type: str
+   :requirement: Optional
+   :default: `''`
 
-  * if there is no ``icon``, the button's text
-  * if there is an ``icon``, ``alt`` text for the icon
+.. attribute:: help
+   :noindex:
 
-  .. code-block:: xml
+   The tooltip message shown when hovering with the mouse cursor.
 
-      <button type="object" name="action_create_new" string="Create document"/>
+   .. example::
+      .. code-block:: xml
 
-:help:
-  string_ (optional)
+         <button type="object" name="remove" icon="fa-trash" help="Revoke"/>
 
-  add a tooltip message when hover with the mouse cursor
+   :type: str
+   :requirement: Optional
+   :default: `''`
 
-  .. code-block:: xml
+.. attribute:: context
+   :noindex:
 
-    <button type="object" name="remove" icon="fa-trash" help="Revoke"/>
+   The context that is merged into the view's context when performing the button's call, as a Python
+   expression that evaluates to a dict.
 
-:context:
-  `python expression`_ that evaluates to a dict_ (default: ``{}``)
+   .. example::
+      .. code-block:: xml
 
-  merged into the view's context when performing the button's Odoo call
+         <button name="button_confirm" type="object" context="{'BUSINESS_KEY': ANY}" string="LABEL"/>
 
-  .. code-block:: xml
+   :type: :ref:`Python expression <reference/view_architectures/python_expression>`
+   :requirement: Optional
+   :default: `{}`
 
-    <button name="button_confirm" type="object" context="{'BUSINESS_KEY': ANY}" string="LABEL"/>
+.. include:: view_architectures/attribute_groups.rst
 
-:type:
-  string_ chooses from ``object`` or ``action`` (mandatory)
+.. include:: view_architectures/attribute_invisible.rst
 
-  type of button, indicates how it clicking it affects Odoo:
+.. include:: view_architectures/attribute_class.rst
 
-  .. rst-class:: o-definition-list
+.. attribute:: special
+   :noindex:
 
-  ``object``
-      call a method on the list's model. The button's ``name`` is the
-      method, which is called with the current row's record id and the
-      current context.
+   The behavior of the button for form views opened in dialog. It can have two different values:
 
-      .. web client also supports a @args, which allows providing
-          additional arguments as JSON. Should that be documented? Does
-          not seem to be used anywhere
+   .. attribute:: save
+      :noindex:
 
-  ``action``
-      load an execute an ``ir.actions``, the button's ``name`` is the
-      database id of the action. The context is expanded with the list's
-      model (as ``active_model``), the current row's record
-      (``active_id``) and all the records currently loaded in the list
-      (``active_ids``, may be just a subset of the database records
-      matching the current search)
+      Save the record and close the dialog.
 
-  .. code-block:: xml
+   .. attribute:: cancel
+      :noindex:
 
-      <button type="object" name="action_create_new" string="Create document"/>
-      <button type="action" name="%(addon.action_create_view)d" string="Create and Edit"/>
+      Close the dialog without saving.
 
-:name:
-  string_ (optional)
+   .. example::
+      .. code-block:: xml
 
-  see ``type``
+         <button special="cancel" icon="fa-trash"/>
 
-:groups:
-  `Comma-separated values`_ (optional) whose choices are the :class:`~odoo.addons.base.models.res_users.Groups` reference
+   :type: str
+   :requirement: Optional
+   :default: `''`
 
-  same as for :ref:`form field <reference/view_architecture/form/field>` component.
+.. attribute:: confirm
+   :noindex:
 
-:invisible:
-  :ref:`python expression <reference/view_architecture/python_expression>` that evaluates to a boolean_ (default: ``False``)
+   The confirmation message to display (and for the user to accept) before performing the button's
+   action.
 
-  same as for :ref:`form field <reference/view_architecture/form/field>` component.
+   .. example::
+      .. code-block:: xml
 
-:class:
-  string_ (optional) `HTML class`_
+         <button name="action_destroye_gate" string="Send the goa'uld" type="object" confirm="Do you confirm the action?"/>
 
-  see class attribute from :ref:`form field <reference/view_architecture/form/field>` component.
+   :type: str
+   :requirement: Optional
+   :default: `''`
 
-  In form view, in addition to the classic behavior, the special class
-  ``oe_stat_button`` define a particular rendering in order to
-  dynamically display information while being clickable to target an
-  action.
+.. attribute:: data-hotkey
+   :noindex:
 
-  .. code-block:: xml
+   The hotkey (`keyboard_shortcut`_, similar to an accesskey_) that is bound to the button. It is
+   enabled when the `alt` key is pressed together with the selected character, or together with the
+   `shift` key and the selected character when `shift+` is prepended to the value.
 
-    <button type="object" name="ACTION" class="oe_stat_button" icon="FONT_AWESOME" help="HELP">
-      <div class="o_field_widget o_stat_info">
-        <span class="o_stat_value"><FIELD/></span>
-        <span class="o_stat_text">TEXT</span>
-      </div>
-    </button>
+   .. example::
+      .. code-block:: xml
 
-:special:
-  string_ (optional) chooses from ``save`` or ``cancel``
+         <button type="object" name="action_confirm" string="Confirm" data-hotkey="c"/>
+         <button type="object" name="action_tear" string="Tear the sheet" data-hotkey="shift+k"/>
 
-  for form views opened in dialogs: ``save`` to save the record and
-  close the dialog, ``cancel`` to close the dialog without saving.
+   :type: str
+   :requirement: Optional
+   :default: `''`
 
-  .. code-block:: xml
+.. _reference/view_architectures/form/chatter:
 
-    <button special="cancel" icon="fa-trash"/>
+Chatter widget
+~~~~~~~~~~~~~~
 
-:confirm:
-  string_ (optional)
+The chatter widget is the communication and log tool allowing to email colleagues and customers
+directly from a record (task, order, invoice, event, note...).
 
-  confirmation message to display (and for the user to accept) before
-  performing the button's Odoo call (also works in Kanban views).
+It is added with a `div` element with the class `oe_chatter`.
 
-  .. code-block:: xml
+.. example::
+   .. code-block:: xml
 
-    <button name="action_destroye_gate" string="Send the goa'uld" type="object" confirm="Do you confirm the action?"/>
+      <form>
+          <sheet>
+              ...
+          </sheet>
+          <div class="oe_chatter">
+              <field name="message_follower_ids"/>
+              <field name="activity_ids"/>
+              <field name="message_ids" options="OPTIONS"/>
+          </div>
+      </form>
 
-:data-hotkey:
-  string_ (optional) only one char or ``shift+`` + one char
+.. _reference/view_architectures/form/attachment:
 
-  Define a hotkey (`keyboard_shortcut`_ similar to an accesskey_) enable when
-  ``alt`` keypress to facilitate access to the action.
+Attachments preview widget
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-  .. code-block:: xml
+The attachment preview widget is added with an *empty* `div` element with the class
+`o_attachment_preview`.
 
-    <button type="object" name="action_tear" string="Tear the sheet" data-hotkey="shift+k"/>
+.. example::
+   .. code-block:: xml
 
-:invisible:
-  :ref:`python expression <reference/view_architecture/python_expression>` (default: ``False``)
+      <form>
+          <sheet>
+              ...
+          </sheet>
+          <div class="o_attachment_preview"/>
+      <form>
 
-  same as for :ref:`field <reference/view_architecture/form/field>` component.
-
-Messaging features
-~~~~~~~~~~~~~~~~~~
-
-Chatter is the communication and log tool located on most records. It
-allows you to email colleagues and customers directly from a record
-(task, order, invoice, event, note...).
-
-The element must be a div with classname ``oe_chatter``.
-
-The widget is linked to specific python code of this :ref:`reference/mixins/mail`.
-
-.. code-block:: xml
-
-    <form>
-      <sheet>
-        ...
-      </sheet>
-      <div class="oe_chatter">
-        <field name="message_follower_ids"/>
-        <field name="activity_ids"/>
-        <field name="message_ids" options="OPTIONS"/>
-      </div>
-    </form>
-
-Attachment/Document preview
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The element must be an empty div with classname ``o_attachment_preview``.
-
-.. code-block:: xml
-
-    <form>
-      <sheet>
-        ...
-      </sheet>
-      <div class="o_attachment_preview"/>
-    <form>
-
-.. _reference/view_architecture/form/structural:
+.. _reference/view_architectures/form/structural:
 
 Structural components
 ---------------------
 
-Structural components provide structure or "visual" features with little
-logic. They are used as elements or sets of elements in form views.
+Structural components provide structure or "visual" features with little logic. They are used as
+elements or sets of elements in form views.
+
+Form views accept the following children structural components: :ref:`group
+<reference/view_architectures/form/group>`, :ref:`sheet <reference/view_architectures/form/sheet>`,
+:ref:`notebook <reference/view_architectures/form/notebook>`,
+:ref:`notebook <reference/view_architectures/form/notebook>`,
+:ref:`newline <reference/view_architectures/form/newline>`,
+:ref:`separator <reference/view_architectures/form/separator>`,
+:ref:`header <reference/view_architectures/form/header>`,
+:ref:`footer <reference/view_architectures/form/footer>`,
+:ref:`reference/view_architectures/form/button_container`, and
+:ref:`reference/view_architectures/form/title_container`.
+
 Placeholders are denoted in all caps.
 
-.. _reference/view_architecture/form/group:
+.. _reference/view_architectures/form/group:
 
-<group>: Columns layout
-~~~~~~~~~~~~~~~~~~~~~~~
+`group`: define columns layouts
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. code-block:: xml
+The `group` element is used to define column layouts in forms. By default, groups define 2 columns,
+and most direct children of groups take a single column.
 
-  <form>
-    <group>
-      ...
-    </group>
-  </form>
+:ref:`field <reference/view_architectures/form/field>` elements that are direct children of groups
+display a `label` by default, and the label and the field itself have a `colspan` of `1` each.
 
-Used to define column layouts in forms. By default, groups define 2 columns and most
-direct children of groups take a single column.
-:ref:`<field> <reference/view_architecture/form/field>` direct children of groups
-display a ``label`` by default, and the label and the field itself have a colspan of 1
-each.
-
-Children are laid out horizontally (tries to fill the next column before changing row).
-
-``<group>`` can have the following attributes:
-
-:col:
-  integer_ (default: ``2``)
-
-  number of columns in a ``<group>``
-
-:colspan:
-  integer_ (default: ``1``)
-
-  number of columns taken by an element
-
-:string:
-  string_ (default: ``''``)
-
-  displayed a group’s title
-
-:invisible:
-  :ref:`python expression <reference/view_architecture/python_expression>` (default: ``False``)
-
-  same as for :ref:`field <reference/view_architecture/form/field>` component.
-
-Below is a possible structure and the representation of its rendering.
-
-.. container:: row
-
-  .. code-block:: xml
-    :class: col-xxl-6
-
-    <group>
-      <field name="a" string="custom"/>
-      <field name="b"/>
-    </group>
-    <group string="title 1">
-      <group string="title 2">
-        <field name="c"/>
-        <field name="d"/>
-      </group>
-      <group>
-        <field name="e"/>
-        <field name="f"/>
-        <field name="g"/>
-      </group>
-    </group>
-    <group col="12">
-      <group colspan="8">
-        <field name="h"/>
-      </group>
-      <group colspan="4">
-        <field name="i"/>
-      </group>
-    </group>
-
-  .. image:: view_architecture/form_group.svg
-    :class: col-xxl-6
-
-.. _reference/view_architecture/form/sheet:
-
-<sheet>: Responsive layout
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-``<sheet>`` can be used as a direct child to ``<form>`` for a narrower and more responsive
-form layout (center page, margin...). Usually it contains :ref:`<group> <reference/view_architecture/form/group>`.
+Children are laid out horizontally (they try to fill the next column before changing row).
 
 .. code-block:: xml
 
-  <form>
-    <sheet>
-      ...
-    </sheet>
+   <form>
+       <group>
+           ...
+       </group>
   </form>
 
-.. _reference/view_architecture/form/notebook:
+The `group` element can have the following attributes:
 
-<notebook> & <page>: tabbed section
+.. attribute:: string
+   :noindex:
+
+   The title displayed for the group.
+
+   :type: str
+   :requirement: Optional
+   :default: `''`
+
+.. attribute:: col
+   :noindex:
+
+   The number of columns in a `group`.
+
+   :type: int
+   :requirement: Optional
+   :default: `2`
+
+.. attribute:: colspan
+   :noindex:
+
+   The number of columns taken by a child element.
+
+   :type: int
+   :requirement: Optional
+   :default: `1`
+
+.. include:: view_architectures/attribute_invisible.rst
+
+.. admonition:: Possible structure and representation of its rendering
+
+   .. list-table::
+      :class: o-showcase-table
+
+      * - .. image:: view_architectures/form_group.svg
+             :align: center
+
+      * - .. code-block:: xml
+
+             <group>
+                 <field name="a" string="custom"/>
+                 <field name="b"/>
+             </group>
+             <group string="title 1">
+                 <group string="title 2">
+                     <field name="c"/>
+                     <field name="d"/>
+                 </group>
+                 <group>
+                     <field name="e"/>
+                     <field name="f"/>
+                     <field name="g"/>
+                 </group>
+             </group>
+             <group col="12">
+                 <group colspan="8">
+                     <field name="h"/>
+                 </group>
+                 <group colspan="4">
+                     <field name="i"/>
+                 </group>
+             </group>
+
+.. _reference/view_architectures/form/sheet:
+
+`sheet`: make the layout responsive
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. code-block:: xml
-
-  <form>
-    <notebook>
-      <page string="LABEL">
-        ...
-      </page>
-    </notebook>
-  </form>
-
-``notebook`` defines a tabbed section. Each tab is defined through a ``page``
-child element.
-
-``<page>`` can have the following attributes:
-
-:string:
-  string_ (default: ``''``)
-
-  the title of the tab
-
-:invisible:
-  :ref:`python expression <reference/view_architecture/python_expression>` (default: ``False``)
-
-  same as for :ref:`field <reference/view_architecture/form/field>` component.
-
-  Can be apply on ``notebook`` and ``page`` nodes.
-
-Below is a possible structure and the representation of its rendering.
-
-.. container:: row
-
-  .. code-block:: xml
-    :class: col-xxl-6
-
-    <form>
-      <notebook>
-        <page string="Page1">
-          ...
-        </page>
-        <page string="Page2">
-          ...
-        </page>
-      </notebook>
-    </form>
-
-  .. image:: view_architecture/form_notebook.svg
-    :class: col-xxl-6
-
-.. note:: Note that ``notebook`` should not be placed within ``group``
-
-.. _reference/view_architecture/form/newline:
-
-<newline>: new row
-~~~~~~~~~~~~~~~~~~
+The `sheet` element can be used as a direct child of the :ref:`form
+<reference/view_architectures/form>` root element for a narrower and more responsive form layout
+(centered page, margin...). It usually contains :ref:`group
+<reference/view_architectures/form/group>` elements.
 
 .. code-block:: xml
 
-  <form>
-    <group>
-      ...
-      <newline/>
-      ...
-    </group>
-  </form>
+   <form>
+       <sheet>
+           ...
+       </sheet>
+   </form>
 
-only useful within :ref:`<group> <reference/view_architecture/form/group>`
-elements, ends the current row early and immediately switches to a new row
-(without filling any remaining column beforehand)
+.. _reference/view_architectures/form/notebook:
 
-Below is a possible structure and the representation of its rendering.
+`notebook` & `page`: add a tabbed section
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. container:: row
+The `notebook` element defines a tabbed section. Each tab is defined through a `page` child element.
 
-  .. code-block:: xml
-    :class: col-xxl-6
-
-    <form>
-      <group string="Title 1">
-        <group string="Title 1.1">...</group>
-        <newline/>
-        <group string="Title 1.2">...</group>
-        <group string="Title 1.3">...</group>
-      </group>
-    </form>
-
-  .. image:: view_architecture/form_newline.svg
-    :class: col-xxl-6
-
-.. _reference/view_architecture/form/separator:
-
-<separator>: horizontal spacing
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The `notebook` element should not be placed within `group` elements.
 
 .. code-block:: xml
 
-  <form>
-    ...
-    <separator/>
-    ...
-  </form>
+   <form>
+       <notebook>
+           <page string="LABEL">
+               ...
+           </page>
+       </notebook>
+   </form>
 
-small horizontal spacing. ``<separator>`` can have the following attributes:
+The `page` element can have the following attributes:
 
-:string:
-  string_ (default: ``''``)
+.. attribute:: string
+   :noindex:
 
-  the title as a section title
+   The title of the tab.
 
-Below is a possible structure and the representation of its rendering.
+   :type: `str`
+   :requirement: Optional
+   :default: `''`
 
-.. container:: row
+.. include:: view_architectures/attribute_invisible.rst
 
-  .. code-block:: xml
-    :class: col-xxl-6
+.. admonition:: Possible structure and representation of its rendering
 
-    <form>
-      <group>
-        <FIELD/>
-        <separator string="Title 1"/>
-        <FIELD/>
-        <group>
-          <FIELD/>
-          <separator string="Title 2"/>
-          <FIELD/>
-        </group>
-        <group>
-          <FIELD/>
-          <FIELD/>
-        </group>
-      </group>
-    </form>
+   .. list-table::
+      :class: o-showcase-table
 
-  .. image:: view_architecture/form_separator.svg
-    :class: col-xxl-6
+      * - .. image:: view_architectures/form_notebook.svg
+             :align: center
 
-.. _reference/view_architecture/form/header:
+      * - .. code-block:: xml
 
-<header>: workflow buttons and status
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+             <form>
+                 <notebook>
+                     <page string="Page1">
+                         ...
+                     </page>
+                     <page string="Page2">
+                         ...
+                     </page>
+                 </notebook>
+             </form>
 
-.. code-block:: xml
+.. _reference/view_architectures/form/newline:
 
-  <form>
-    <header>
-      <BUTTONS/>
-    </header>
-    <sheet>
-      ...
-    </sheet>
-  </form>
+`newline`: start a new group row
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-combined with :ref:`<sheet> <reference/view_architecture/form/sheet>`,
-provides a full-width location above the sheet itself, generally used to
-display workflow :ref:`buttons <reference/view_architecture/form/button>`
-and a :ref:`field <reference/view_architecture/form/field>` display as
-status widget.
-
-Below is an example with the status widget with some options.
+The `newline` element is used within :ref:`group <reference/view_architectures/form/group>`
+elements to end the current row early and immediately switch to a new row, without filling any
+remaining column beforehand.
 
 .. code-block:: xml
 
-  <header>
-    <button string="Reset" type="object" name="set_draft" invisible="state != 'done'"/>
-    <field name="state" widget="statusbar" statusbar_visible="draft,posted" options="{'clickable': 1}"/>
-  </header>
+   <form>
+       <group>
+           ...
+           <newline/>
+           ...
+       </group>
+   </form>
 
-.. _reference/view_architecture/form/footer:
+.. admonition:: Possible structure and representation of its rendering
 
-<footer>: bottom/dialog buttons
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   .. list-table::
+      :class: o-showcase-table
 
-.. code-block:: xml
+      * - .. image:: view_architectures/form_newline.svg
+             :align: center
 
-  <form>
-    <sheet>
-      ...
-    </sheet>
-    <footer>
-      <BUTTONS/>
-    </footer>
-  </form>
+      * - .. code-block:: xml
 
-Display button at the bottom of the dialog. Used with :ref:`buttons <reference/view_architecture/form/button>`
+             <form>
+                 <group string="Title 1">
+                     <group string="Title 1.1">...</group>
+                     <newline/>
+                     <group string="Title 1.2">...</group>
+                     <group string="Title 1.3">...</group>
+                 </group>
+             </form>
 
-The special action from ``<button>`` can save or cancel the form view displayed into the
-dialog.
+.. _reference/view_architectures/form/separator:
 
-.. code-block:: xml
+`separator`: add horizontal spacing
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-  <footer>
-      <button string="Save" special="save"/>
-      <button string="Feature action" type="object" name="my_action" class="btn-primary"/>
-      <button string="Discard" special="cancel"/>
-  </footer>
-
-.. _reference/view_architecture/form/container:
-
-container for buttons
-~~~~~~~~~~~~~~~~~~~~~
+The `separator` element adds vertical spacing between elements within a group.
 
 .. code-block:: xml
 
-    <form>
-      <div name="button_box">
-        <BUTTONS/>
-      </div>
-    <form>
+   <form>
+       ...
+       <separator/>
+       ...
+   </form>
 
-Container for specific rendering to display :ref:`buttons <reference/view_architecture/form/button>`
+The `<separator>` element can have the following attributes:
 
-.. container:: row
+.. attribute:: string
+   :noindex:
 
-  .. code-block:: xml
-    :class: col-xxl-6
+   The title as a section title.
 
-    <form>
-      <div name="button_box">
-        <button type="edit" name="edit"
-            icon="fa-edit" string="Button1"/>
+   :type: `str`
+   :requirement: Optional
+   :default: `''`
 
-        <button type="object" name="my_action"
-            icon="fa-dollar">
-          <field name="total_inv" widget="statinfo"
-              string="Invoices"/>
-        </button>
-      </div>
-      ...
-    <form>
+.. admonition:: Possible structure and representation of its rendering
 
-  .. image:: view_architecture/form_button_box.svg
-    :class: col-xxl-6
+   .. list-table::
+      :class: o-showcase-table
 
-container for a title
-~~~~~~~~~~~~~~~~~~~~~
+      * - .. image:: view_architectures/form_separator.svg
+             :align: center
+
+      * - .. code-block:: xml
+
+             <form>
+                 <group>
+                     <FIELD/>
+                     <separator string="Title 1"/>
+                     <FIELD/>
+                     <group>
+                         <FIELD/>
+                         <separator string="Title 2"/>
+                         <FIELD/>
+                     </group>
+                     <group>
+                         <FIELD/>
+                         <FIELD/>
+                     </group>
+                 </group>
+             </form>
+
+.. tip::
+   The `separator` element can be used to achieve visual separation between elements within the same
+   inner `group` element while keeping them horizontally aligned.
+
+.. _reference/view_architectures/form/header:
+
+`header`: display workflow buttons and a status
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The `header` element combined with the :ref:`sheet <reference/view_architectures/form/sheet>`
+element provides a full-width location above the sheet itself generally used to display workflow
+:ref:`button <reference/view_architectures/form/button>` elements and a :ref:`field
+<reference/view_architectures/form/field>` element rendered as status widget.
 
 .. code-block:: xml
 
-    <form>
-      <sheet>
-        <div class="oe_title">
-          <h1><FIELD/></h1>
-        </div>
-      </sheet>
-    <form>
-
-Container for specific rendering to display a :ref:`<field> <reference/view_architecture/form/field>` as title.
-
-.. ....................................................................
-
-.. _reference/view_architecture/settings:
-
-Settings form
-=============
-
-The settings form view is a customization of the :ref:`form view <reference/view_architecture/form>`.
-It's used to centralize all the settings of Odoo.
-
-This view differs from a generic form view because it has a search bar, a sidebar and accepts 3
-additional tags: ``app``, ``block`` and ``setting``.
+   <form>
+       <header>
+           <BUTTONS/>
+       </header>
+       <sheet>
+           ...
+       </sheet>
+   </form>
 
 .. example::
 
-  .. code-block:: xml
+   .. code-block:: xml
+
+      <header>
+          <button string="Reset" type="object" name="set_draft" invisible="state != 'done'"/>
+          <field name="state" widget="statusbar" statusbar_visible="draft,posted" options="{'clickable': 1}"/>
+      </header>
+
+.. _reference/view_architectures/form/footer:
+
+`footer`: display dialog buttons
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The `footer` element is used to display :ref:`buttons <reference/view_architectures/form/button>`
+elements at the end of dialogs.
+
+.. code-block:: xml
+
+   <form>
+       <sheet>
+           ...
+       </sheet>
+       <footer>
+           <BUTTONS/>
+       </footer>
+   </form>
+
+.. example::
+   .. code-block:: xml
+
+      <footer>
+          <button string="Save" special="save"/>
+          <button string="Feature action" type="object" name="my_action" class="btn-primary"/>
+          <button string="Discard" special="cancel"/>
+      </footer>
+
+.. _reference/view_architectures/form/button_container:
+
+Buttons container
+~~~~~~~~~~~~~~~~~
+
+A :ref:`button <reference/view_architectures/form/button>` elements container can be created with a
+`div` element with the class `button_box`.
+
+.. code-block:: xml
+
+   <form>
+       <div name="button_box">
+           <BUTTONS/>
+       </div>
+   <form>
+
+.. admonition:: Possible structure and representation of its rendering
+
+   .. list-table::
+      :class: o-showcase-table
+
+      * - .. image:: view_architectures/form_button_box.svg
+             :align: center
+
+      * - .. code-block:: xml
+
+             <form>
+                 <div name="button_box">
+                     <button type="edit" name="edit" icon="fa-edit" string="Button1"/>
+                     <button type="object" name="my_action" icon="fa-dollar">
+                         <field name="total_inv" widget="statinfo" string="Invoices"/>
+                     </button>
+                 </div>
+             <form>
+
+.. _reference/view_architectures/form/title_container:
+
+Title container
+~~~~~~~~~~~~~~~
+
+A title :ref:`field <reference/view_architectures/form/field>` element container can be created with
+a `div` element with the class `oe_title`.
+
+.. code-block:: xml
+
+   <form>
+       <sheet>
+           <div class="oe_title">
+               <h1><FIELD/></h1>
+           </div>
+       </sheet>
+   <form>
+
+.. ....................................................................
+
+.. _reference/view_architectures/settings:
+
+Settings
+========
+
+Settings views are a customization of the :ref:`form <reference/view_architectures/form>` view. They
+are used to display settings in a centralized place. They differ from generic form views in in that
+they have a search bar, a sidebar, and accept three additional children elements: :ref:`app
+<reference/view_architectures/settings/app>`, :ref:`block
+<reference/view_architectures/settings/block>`, and :ref:`setting
+<reference/view_architectures/settings/setting>`.
+
+.. example::
+
+   .. code-block:: xml
 
       <app string="CRM" name="crm">
           <setting type="header" string="Foo">
@@ -1014,239 +1099,274 @@ additional tags: ``app``, ``block`` and ``setting``.
           </block>
       </app>
 
-.. _reference/view_architecture/settings/app:
+.. _reference/view_architectures/settings/app:
 
-<app>: declare the application
+`app`: declare the application
 ------------------------------
+
+The `app` element is used to declare the application on the settings view. It creates an entry with
+the logo of the application on the sidebar of the view. It also acts as delimiter when searching.
 
 .. code-block:: xml
 
-  <form>
-    <app string="NAME" name="TECHNICAL_NAME">
-    ...
-    </app>
-  </form>
+   <form>
+       <app string="NAME" name="TECHNICAL_NAME">
+       ...
+       </app>
+   </form>
 
-The ``app`` tag is used to declare the application on the settings view. It
-creates an entry with its logo on the sidebar of the view. It also acts as
-delimiter when searching. ``<app>`` can have the following attributes:
+The `app` element can have the following attributes:
 
-:string:
-  string_ (mandatory)
+.. attribute:: string
+   :noindex:
 
-  The name of the application.
+   The name of the application.
 
-:name:
-  string_ (mandatory)
+   :requirement: Mandatory
+   :type: str
 
-  The technical name of the application (the name of the module).
+.. attribute:: name
+   :noindex:
 
-:logo:
-  path_ (optional)
+   The technical name of the application (the name of the module).
 
-  The `relative path`_ to the logo. If not set, the logo is created using
-  the ``name`` parameter : ``/{name}/static/description/icon.png``.
+   :requirement: Mandatory
+   :type: str
 
-:groups:
-  `Comma-separated values`_ (optional) whose choices are the :class:`~odoo.addons.base.models.res_users.Groups` reference
+.. attribute:: logo
+   :noindex:
 
-  same as for :ref:`field <reference/view_architecture/form/field>` component.
+   The `relative path`_ to the logo.
 
-:invisible:
-  :ref:`python expression <reference/view_architecture/python_expression>` that evaluates to a boolean_ (default: ``False``)
+   :requirement: Optional
+   :type: path_
+   :default: A path computed with the `name` attribute: :file:`/{name}/static/description/icon.png`
 
-  same as for :ref:`field <reference/view_architecture/form/field>` component.
+.. include:: view_architectures/attribute_groups.rst
 
-.. _reference/view_architecture/settings/block:
+.. include:: view_architectures/attribute_invisible.rst
 
-<block>: declare a group of settings
+.. _reference/view_architectures/settings/block:
+
+`block`: declare a group of settings
 ------------------------------------
 
+The `block` element is used to declare a group of settings. This group can have a title and a
+description.
+
 .. code-block:: xml
 
-  <form>
-    <app string="NAME" name="TECHNICAL_NAME">
-      ...
-      <block title="TITLE">
-        ...
-      </block>
-      ...
-    </app>
+   <form>
+       <app string="NAME" name="TECHNICAL_NAME">
+           ...
+           <block title="TITLE">
+               ...
+           </block>
+           ...
+       </app>
   </form>
 
-The ``block`` tag is used to declare a group of settings. This group can have
-a title and a description/help. ``<block>`` can have the following attributes:
+The `block` element can have the following attributes:
 
-:title:
-  string_ (optional)
+.. attribute:: title
+   :noindex:
 
-  The title of the block of settings, you can perform research on its text.
+   The title of the block of settings. One can perform research on its value.
 
-:help:
-  string_ (optional)
+   :requirement: Optional
+   :type: str
+   :default: `''`
 
-  The description/help of the block of settings, you can perform research on
-  its text.
+.. attribute:: help
+   :noindex:
 
-:groups:
-  `Comma-separated values`_ (optional) whose choices are the :class:`~odoo.addons.base.models.res_users.Groups` reference
+   The description of the block of settings. One can perform research on its value.
 
-  same as for :ref:`field <reference/view_architecture/form/field>` component.
+   :requirement: Optional
+   :type: str
+   :default: `''`
 
-:invisible:
-  :ref:`python expression <reference/view_architecture/python_expression>` that evaluates to a boolean_ (default: ``False``)
+.. include:: view_architectures/attribute_groups.rst
 
-  same as for :ref:`field <reference/view_architecture/form/field>` component.
+.. include:: view_architectures/attribute_invisible.rst
 
-.. _reference/view_architecture/settings/setting:
+.. _reference/view_architectures/settings/setting:
 
-<setting>: declare the setting
+`setting`: declare the setting
 ------------------------------
 
+The `setting` element is used to declare the setting itself.
+
+The first :ref:`field <reference/view_architectures/form/field>` element in the setting is used as
+the main field. It is placed on the left panel if it is a boolean field, and on the top of the right
+panel otherwise. The field is also used to create the setting label if a `string` attribute is not
+defined.
+
+The `setting` element can also contain additional elements (e.g., HTML). All of those elements are
+rendered in the right panel.
+
 .. code-block:: xml
 
-  <form>
-    <app string="NAME" name="TECHNICAL_NAME">
-      <block title="TITLE">
-        ...
-        <setting string="SETTING_NAME">
-          ...
-          <field name="FIELD_NAME"/>
-          ...
-        </setting>
-        ...
-      </block>
-    </app>
-  </form>
+   <form>
+       <app string="NAME" name="TECHNICAL_NAME">
+           <block title="TITLE">
+               ...
+               <setting string="SETTING_NAME">
+                   ...
+                   <field name="FIELD_NAME"/>
+                   ...
+               </setting>
+               ...
+           </block>
+       </app>
+   </form>
 
-The ``setting`` tag is used to declare the setting itself. The first field in
-the setting is used as the main field (optional). This field is placed on the
-left panel (if it's a boolean field) or on the top of the right panel
-(otherwise). The field is also used to create the setting label if a
-``string`` is not defined. The ``setting`` tag can also contain more elements
-(e.g. html), all of these elements are rendered in the right panel.
-``<setting>`` can have the following attributes:
+The `<setting>` element can have the following attributes:
 
-:type:
-  string_ (optional)
+.. attribute:: type
+   :noindex:
 
-  By default, a setting is visually separated on two panels (left and right),
-  and is used to edit a given field. By defining ``type='header'``, a special
-  kind of setting is rendered instead. This setting is used to modify the
-  scope of the other settings. For example, on the website application, this
-  setting is used to indicate to which website the other settings apply. The
-  header setting is visually represented as a yellow banner on the top of the
-  screen.
+   By default, a setting is visually separated on two panels (left and right), and is used to edit a
+   given :ref:`field <reference/view_architectures/form/field>`. By defining `type="header"`, a
+   special kind of setting is rendered instead. This setting is used to modify the scope of the
+   other settings. For example, on the Website application, this setting is used to indicate to
+   which website the other settings apply. The header setting is visually represented as a banner on
+   top of the screen.
 
-:string:
-  string_ (optional)
+   :requirement: Optional
+   :type: str
+   :default: `''`
 
-  The text used as label of the setting. If it's not defined, the first field
-  is used as label.
+.. attribute:: string
+   :noindex:
 
-:title:
-  string_ (optional)
+   The text used as the label of the setting.
 
-  The text used as tooltip.
+   :requirement: Optional
+   :type: str
+   :default: The first field's label
 
-:help:
-  string_ (optional)
+.. attribute:: title
+   :noindex:
 
-  The help/description of the setting. This text is displayed just below the
-  setting label (with classname ``text-muted``).
+   The text used as a tooltip.
 
-:company_dependent:
-  ``1`` (optional)
+   :requirement: Optional
+   :type: str
+   :default: `''`
 
-  If this attribute is set to "1" an icon is displayed next to the setting
-  label to explicit that this setting is company-specific.
+.. attribute:: help
+   :noindex:
 
-:documentation:
-  path_ (optional)
+   The description of the setting. This text is displayed just below the setting label (with the
+   class `text-muted`).
 
-  If this attribute is set, an icon is added next to the setting label, this
-  icon is a link to the documentation. Note that you can use relative or
-  absolute path. The `relative path`_ is relative to ``https://www.odoo.com/documentation/<server_version>``,
-  so it's not necessary to hard-code the server version on the arch anymore.
+   :requirement: Optional
+   :type: str
+   :default: `''`
 
-:groups:
-  `Comma-separated values`_ (optional) whose choices are the :class:`~odoo.addons.base.models.res_users.Groups` reference
+.. attribute:: company_dependent
+   :noindex:
 
-  same as for :ref:`field <reference/view_architecture/form/field>` component.
+   Whether the setting is company-specific. If set, an icon is displayed next to the setting label.
 
-:invisible:
-  :ref:`python expression <reference/view_architecture/python_expression>` that evaluates to a boolean_ (default: ``False``)
+   It accepts only the value `'1'`.
 
-  same as for :ref:`field <reference/view_architecture/form/field>` component.
+   :requirement: Optional
+   :type: str
+   :default: `''`
+
+.. attribute:: documentation
+   :noindex:
+
+   The `path`_ to the documentation on the setting. If set, a clickable icon is displayed next to
+   the setting label. The path can be both an absolute or a `relative path`_. In the latter case, it
+   is relative to `https://www.odoo.com/documentation/<version>`.
+
+   :requirement: Optional
+   :type: `path_`
+   :default: `''`
+
+.. include:: view_architectures/attribute_groups.rst
+
+.. include:: view_architectures/attribute_invisible.rst
 
 .. ....................................................................
 
-.. _reference/view_architecture/list:
+.. _reference/view_architectures/list:
 
 List
 ====
 
-.. container:: row
+The root element of list views is `tree`\ [#treehistory]_.
 
-  .. code-block:: xml
-    :class: col-xxl-6
+.. admonition:: Possible structure and representation of its rendering
 
-    <tree>
-      ...
-    </tree>
+   .. list-table::
+      :class: o-showcase-table
 
-  .. image:: view_architecture/list.svg
-    :class: col-xxl-6
+      * - .. image:: view_architectures/list.svg
+             :align: center
 
-The root element of list views is ``<tree>``\ [#treehistory]_. The list view's
-root can have the following attributes_:
+      * - .. code-block:: xml
+
+             <tree>
+                 ...
+             </tree>
+
+.. _reference/view_architectures/list/root:
+
+Root attributes
+---------------
+
+Optional attributes_ can be added to the root element `tree` to customize the view.
 
 :string:
-  string_ (default: ``''``)
+  string (default: ``''``)
 
   This view title is displayed only if you open an action that has no name and
   whose target is 'new' (opening a dialog)
 
 :create:
-  boolean_ (default: ``True``)
+  bool (default: ``True``)
 
   Disable/enable record creation on the view.
 
 :edit:
-  boolean_ (default: ``True``)
+  bool (default: ``True``)
 
   Disable/enable record editing on the view.
 
   If the ``edit`` attribute is set to ``false``, the ``editable`` option will be ignored.
 
 :delete:
-  boolean_ (default: ``True``)
+  bool (default: ``True``)
 
   Disable/enable record deletion on the view through the **Action** dropdown.
 
 :import:
-  boolean_ (default: ``True``)
+  bool (default: ``True``)
 
   Disable/enable record import data on the view.
 
 :export_xlsx:
-  boolean_ (default: ``True``)
+  bool (default: ``True``)
 
   Disable/enable record export data on the view.
 
 :editable:
-  string_ (optional) chooses from ``top`` or ``bottom``
+  string (optional) chooses from ``top`` or ``bottom``
 
   by default, selecting a list view's row opens the corresponding
-  :ref:`form view <reference/view_architecture/form>`. The ``editable`` attributes
+  :ref:`form view <reference/view_architectures/form>`. The ``editable`` attributes
   makes the list view itself editable in-place.
 
   Valid values are ``top`` and ``bottom``, making *new* records appear respectively at
   the top or bottom of the list.
 
-  The architecture for the inline :ref:`form view <reference/view_architecture/form>`
+  The architecture for the inline :ref:`form view <reference/view_architectures/form>`
   is derived from the list view. Most attributes valid on a :ref:`form view
-  <reference/view_architecture/form>`'s fields and buttons are thus accepted by list
+  <reference/view_architectures/form>`'s fields and buttons are thus accepted by list
   views although they may not have any meaning if the list view is non-editable.
 
   If the ``edit`` attribute is set to ``false``, the ``editable`` option **will be ignored**.
@@ -1259,7 +1379,7 @@ root can have the following attributes_:
   defining the ``multi_edit="1"``
 
 :default_group_by:
-  string_ (optional) :ref:`model <reference/orm/model>` field name
+  string (optional) :ref:`model <reference/orm/model>` field name
 
   whether the list view should be grouped if no grouping is specified via the action or
   the current search. Should be the name of the field to group by when no grouping is
@@ -1286,7 +1406,7 @@ root can have the following attributes_:
 :decoration-muted:
 :decoration-primary:
 :decoration-success:
-  :ref:`python expression <reference/view_architecture/python_expression>` that evaluates to a boolean_ (default: ``False``)
+  :ref:`python expression <reference/view_architectures/python_expression>` that evaluates to a bool (default: ``False``)
 
   allow changing the style of a cell's text based on the corresponding
   record's attributes:
@@ -1318,18 +1438,31 @@ root can have the following attributes_:
   position integer
 
 :expand:
-  boolean_ (default: ``False``)
+  bool (default: ``False``)
 
   when the list view is grouped, automatically open the first level of groups if set
   to true. (Warning: It may be slow depending on the number of groups)
 
-Possible children elements of the list view are: ``button``, ``field``, ``groupby``,
-``header`` or ``control``
+.. include:: view_architectures/attribute_sample.rst
 
-.. _reference/view_architecture/list/field:
+.. include:: view_architectures/attribute_banner_route.rst
+
+.. _reference/view_architectures/list/components:
+
+Components
+----------
+
+List views accept the following children elements: :ref:`field
+<reference/view_architectures/list/field>`, :ref:`button
+<reference/view_architectures/list/button>`, :ref:`groupby
+<reference/view_architectures/list/groupby>`, :ref:`header
+<reference/view_architectures/list/header>`, :ref:`control, and create
+<reference/view_architectures/list/control>`.
+
+.. _reference/view_architectures/list/field:
 
 <field>: render formatted values
---------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: xml
 
@@ -1341,19 +1474,19 @@ defines a column where the corresponding field should be displayed for
 each record. Can use the following attributes:
 
 :name:
-  string_ (mandatory) :ref:`model <reference/orm/model>` field name
+  string (mandatory) :ref:`model <reference/orm/model>` field name
 
   the name of the field to display in the current model. A given name
   can only be used once per view
 
 :string:
-  string_ (optional)
+  string (optional)
 
   the title of the field's column (by default, uses the ``string`` of
   the model's field)
 
 :optional:
-  string_ (optional) chooses from ``hide`` or ``show``
+  string (optional) chooses from ``hide`` or ``show``
 
   if set, the visibility of the field is optional. The display can be chosen
   via a button in the list view. By default fields will be visible if the value
@@ -1364,7 +1497,7 @@ each record. Can use the following attributes:
     <field name="fname_a" optional="hide"/>
 
 :readonly:
-  :ref:`python expression <reference/view_architecture/python_expression>` that evaluates to a boolean_ (default: ``False``)
+  :ref:`python expression <reference/view_architectures/python_expression>` that evaluates to a bool (default: ``False``)
 
   standard dynamic attributes based on record values. If the value is truthy
   or if the evaluate expression is truthy, display the field in both readonly
@@ -1376,7 +1509,7 @@ each record. Can use the following attributes:
     <field name="fname_b" readonly="name_a in [fname_b, parent.fname_d]"/>
 
 :required:
-  :ref:`python expression <reference/view_architecture/python_expression>` that evaluates to a boolean_ (default: ``False``)
+  :ref:`python expression <reference/view_architectures/python_expression>` that evaluates to a bool (default: ``False``)
 
   standard dynamic attributes based on record values. If the value is truthy
   or if the evaluate expression is truthy, generates an error and prevents
@@ -1388,7 +1521,7 @@ each record. Can use the following attributes:
     <field name="fname_b" required="fname_c != 3 and fname_a == parent.fname_d"/>
 
 :invisible:
-  :ref:`python expression <reference/view_architecture/python_expression>` that evaluates to a boolean_ (default: ``False``)
+  :ref:`python expression <reference/view_architectures/python_expression>` that evaluates to a bool (default: ``False``)
 
   standard dynamic attributes based on record values. Hide the field if truthy
   or if the evaluate expression is truthy.
@@ -1403,7 +1536,7 @@ each record. Can use the following attributes:
     <field name="fname_b" invisible="fname_c != 3 and fname_a == parent.fname_d"/>
 
 :column_invisible:
-  :ref:`python expression <reference/view_architecture/python_expression>` that evaluates to a boolean_ (default: ``False``)
+  :ref:`python expression <reference/view_architectures/python_expression>` that evaluates to a bool (default: ``False``)
 
   Fetches and stores the field, but doesn't display the column in the table.
   Necessary for fields which shouldn't be displayed but are used by e.g.
@@ -1437,7 +1570,7 @@ each record. Can use the following attributes:
 :decoration-muted:
 :decoration-primary:
 :decoration-success:
-  :ref:`python expression <reference/view_architecture/python_expression>` that evaluates to a boolean_ (default: ``False``)
+  :ref:`python expression <reference/view_architectures/python_expression>` that evaluates to a bool (default: ``False``)
 
   allow changing the style of a cell's text based on the corresponding
   record's attributes:
@@ -1468,7 +1601,7 @@ each record. Can use the following attributes:
     </tree>
 
 :widget:
-  string_ (optional) chooses from ``handle`` or ``progressbar``
+  string (optional) chooses from ``handle`` or ``progressbar``
 
   alternate representations for a field's display. Possible list view
   values are (among others):
@@ -1492,7 +1625,7 @@ each record. Can use the following attributes:
     </tree>
 
 :sum, avg:
-  string_ (optional)
+  string (optional)
 
   displays the corresponding aggregate at the bottom of the column. The
   aggregation is only computed on *currently displayed* records. The
@@ -1507,7 +1640,7 @@ each record. Can use the following attributes:
     </tree>
 
 :width:
-  string_/integer_ (for ``editable``) (optional)
+  string/integer_ (for ``editable``) (optional)
 
   when there is no data in the list, the width of a column can be forced
   by setting this attribute. The value can be an absolute width (e.g.
@@ -1524,7 +1657,7 @@ each record. Can use the following attributes:
 .. note::
 
   if the list view is ``editable``, any field attribute from the
-  :ref:`form view <reference/view_architecture/form>` is also valid and will
+  :ref:`form view <reference/view_architectures/form>` is also valid and will
   be used when setting up the inline form view.
 
 .. note:: When a list view is grouped, numeric fields are aggregated and
@@ -1533,8 +1666,6 @@ each record. Can use the following attributes:
   not a good practice to have a numeric field in the last column, when the
   list view is in a situation where it can be grouped (it is however fine
   for x2manys field in a form view: they cannot be grouped).
-
-.. _reference/view_architecture/list/button:
 
 Below is a possible structure and the representation of its rendering.
 
@@ -1551,11 +1682,13 @@ Below is a possible structure and the representation of its rendering.
       <field name="tax_id"/>
     </tree>
 
-  .. image:: view_architecture/list_field.svg
+  .. image:: view_architectures/list_field.svg
     :class: col-xxl-6
 
+.. _reference/view_architectures/list/button:
+
 <button>: display button to call action
----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: xml
 
@@ -1567,7 +1700,7 @@ Below is a possible structure and the representation of its rendering.
 ``<button>`` can have the following attributes:
 
 :icon:
-  string_ (optional)
+  string (optional)
 
   icon to use to display the button (:doc:`UI icons <icons>`)
 
@@ -1576,7 +1709,7 @@ Below is a possible structure and the representation of its rendering.
     <button type="object" name="remove" icon="fa-trash"/>
 
 :string:
-  string_ (default: ``''``)
+  string (default: ``''``)
 
   * if there is no ``icon``, the button's text
   * if there is an ``icon``, ``alt`` text for the icon
@@ -1586,7 +1719,7 @@ Below is a possible structure and the representation of its rendering.
       <button type="object" name="action_create_new" string="Create document"/>
 
 :help:
-  string_ (optional)
+  string (optional)
 
   add a tooltip message when hover with the mouse cursor
 
@@ -1595,7 +1728,7 @@ Below is a possible structure and the representation of its rendering.
     <button type="object" name="remove" icon="fa-trash" help="Revoke"/>
 
 :context:
-  `python expression`_ that evaluates to a dict_ (default: ``{}``)
+  `python expression`_ that evaluates to a dict (default: ``{}``)
 
   merged into the view's context when performing the button's Odoo call
 
@@ -1604,7 +1737,7 @@ Below is a possible structure and the representation of its rendering.
     <button name="button_confirm" type="object" context="{'BUSINESS_KEY': ANY}" string="LABEL"/>
 
 :type:
-  string_ chooses from ``object`` or ``action`` (mandatory)
+  string chooses from ``object`` or ``action`` (mandatory)
 
   type of button, indicates how it clicking it affects Odoo:
 
@@ -1633,29 +1766,29 @@ Below is a possible structure and the representation of its rendering.
       <button type="action" name="%(addon.action_create_view)d" string="Create and Edit"/>
 
 :name:
-  string_ (optional)
+  string (optional)
 
   see ``type``
 
 :groups:
   `Comma-separated values`_ (optional) whose choices are the :class:`~odoo.addons.base.models.res_users.Groups` reference
 
-  same as for :ref:`form field <reference/view_architecture/form/field>` component.
+  same as for :ref:`form field <reference/view_architectures/form/field>` component.
 
 :invisible:
-  :ref:`python expression <reference/view_architecture/python_expression>` that evaluates to a boolean_ (default: ``False``)
+  :ref:`python expression <reference/view_architectures/python_expression>` that evaluates to a bool (default: ``False``)
 
-  same as for :ref:`form field <reference/view_architecture/form/field>` component.
+  same as for :ref:`form field <reference/view_architectures/form/field>` component.
 
 :class:
-  string_ (optional) `HTML class`_
+  string (optional) `HTML class`_
 
-  same as for :ref:`form field <reference/view_architecture/form/field>` component.
+  same as for :ref:`form field <reference/view_architectures/form/field>` component.
 
 :column_invisible:
-  :ref:`python expression <reference/view_architecture/python_expression>` that evaluates to a boolean_ (default: ``False``)
+  :ref:`python expression <reference/view_architectures/python_expression>` that evaluates to a bool (default: ``False``)
 
-  same as for :ref:`list field <reference/view_architecture/list/field>` component.
+  same as for :ref:`list field <reference/view_architectures/list/field>` component.
 
 Below is a possible structure and the representation of its rendering.
 
@@ -1679,13 +1812,13 @@ Below is a possible structure and the representation of its rendering.
       <field name="tax_id"/>
     </tree>
 
-  .. image:: view_architecture/list_button.svg
+  .. image:: view_architectures/list_button.svg
     :class: col-xxl-6
 
-.. _reference/view_architecture/list/groupby:
+.. _reference/view_architectures/list/groupby:
 
 <groupby>: custom headers when grouping
----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: xml
 
@@ -1703,7 +1836,7 @@ records on many2one fields. It is also possible to add ``field``, inside the
 many2one comodel. These extra fields will be fetched in batch.
 
 :name:
-  string_ (mandatory) :ref:`model <reference/orm/model>` field name
+  string (mandatory) :ref:`model <reference/orm/model>` field name
 
   the name of a many2one field (on the current model). Custom header will be
   displayed when grouping the view on this field name.
@@ -1737,7 +1870,7 @@ group the record by the selected.
       </groupby>
     </tree>
 
-  .. image:: view_architecture/list_groupby.svg
+  .. image:: view_architectures/list_groupby.svg
     :class: col-xxl-6
 
 .. note::
@@ -1745,10 +1878,10 @@ group the record by the selected.
   The ``fields`` inside ``<groupby>`` are only used to fetches and stores the
   value but are never displayed.
 
-.. _reference/view_architecture/list/header:
+.. _reference/view_architectures/list/header:
 
 <header>: custom buttons in control panel
------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: xml
 
@@ -1762,11 +1895,11 @@ group the record by the selected.
 .. rst-class:: o-definition-list
 
 ``<button>``
-  Defines custom buttons similar to :ref:`list view buttons <reference/view_architecture/list/button>` in the control panel
+  Defines custom buttons similar to :ref:`list view buttons <reference/view_architectures/list/button>` in the control panel
   that perform an action/call a model's method. The buttons which accepts an extra attribute when placed in a `header`:
 
   :display:
-    string_ chooses from ``display`` or ``always`` (default: ``display``)
+    string chooses from ``display`` or ``always`` (default: ``display``)
 
     By default, those buttons are only displayed when some records are
     selected, and they apply on the selection. When the attribute ``display``
@@ -1799,13 +1932,13 @@ Below is a possible structure and the representation of its rendering.
       <field name="tax_id"/>
     </tree>
 
-  .. image:: view_architecture/list_header.svg
+  .. image:: view_architectures/list_header.svg
     :class: col-xxl-6
 
-.. _reference/view_architecture/list/control:
+.. _reference/view_architectures/list/control:
 
 <control> & <create>: customize "add a line"
---------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: xml
 
@@ -1824,12 +1957,12 @@ but can have children ``<create>``.
 It can have the following attributes:
 
 :string:
-  string_ (mandatory)
+  string (mandatory)
 
   The text displayed on the button.
 
 :context:
-  :ref:`python expression <reference/view_architecture/python_expression>` that evaluates to a dict_ (default: ``{}``)
+  :ref:`python expression <reference/view_architectures/python_expression>` that evaluates to a dict (default: ``{}``)
 
   This context will be merged into the existing context
   when retrieving the default value of the new record.
@@ -1857,7 +1990,7 @@ Below is a possible structure and the representation of its rendering.
       </control>
     </tree>
 
-  .. image:: view_architecture/list_control.svg
+  .. image:: view_architectures/list_control.svg
     :class: col-xxl-6
 
 .. note:: ``<control>`` makes sense if the parent ``tree`` view is inside a
@@ -1871,37 +2004,48 @@ Below is a possible structure and the representation of its rendering.
 
 .. ....................................................................
 
-.. _reference/view_architecture/search:
+.. _reference/view_architectures/search:
 
 Search
 ======
 
-.. container:: row
-
-  .. code-block:: xml
-    :class: col-xxl-6
-
-    <search>
-      ...
-    </search>
-
-  .. image:: view_architecture/search.svg
-    :class: col-xxl-6
-
 Search views are different from other view types: they don't display
 *content*. Although they apply to a specific model, they are used to filter
 another view's content (generally aggregated views
-e.g. :ref:`reference/view_architecture/list` or :ref:`reference/view_architecture/graph`).
+e.g. :ref:`reference/view_architectures/list` or :ref:`reference/view_architectures/graph`).
 
-The root element of search views is ``<search>``. It takes no attributes.
+The root element of search views is `search`. It takes no attributes_.
 
-Possible children elements of the list view are: ``field``, ``filter``, ``separator``,
-``group`` or ``searchpanel``
+.. admonition:: Possible structure and representation of its rendering
 
-.. _reference/view_architecture/search/field:
+   .. list-table::
+      :class: o-showcase-table
+
+      * - .. image:: view_architectures/search.svg
+             :align: center
+
+      * - .. code-block:: xml
+
+             <search>
+                 ...
+             </search>
+
+.. _reference/view_architectures/search/components:
+
+Components
+----------
+
+Search views accept the following children elements: :ref:`field
+<reference/view_architectures/search/field>`, :ref:`filter
+<reference/view_architectures/search/filter>`, :ref:`separator
+<reference/view_architectures/search/separator>`, :ref:`group
+<reference/view_architectures/search/group>`, and :ref:`searchpanel
+<reference/view_architectures/search/searchpanel>`.
+
+.. _reference/view_architectures/search/field:
 
 <field>: field usable as filter
--------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: xml
 
@@ -1916,17 +2060,17 @@ with filters using the **AND** operator.
 Fields can have the following attributes:
 
 :name:
-  string_ (mandatory) :ref:`model <reference/orm/model>` field name (mandatory)
+  string (mandatory) :ref:`model <reference/orm/model>` field name (mandatory)
 
   the name of the field to filter on
 
 :string:
-  string_ (optional)
+  string (optional)
 
   the field's label
 
 :operator:
-  string_ (default: ``=``)
+  string (default: ``=``)
 
   by default, fields generate domains of the form :samp:`[({name},
   {operator}, {provided_value})]` where ``name`` is the field's name and
@@ -1939,7 +2083,7 @@ Fields can have the following attributes:
   ``ilike`` for char fields or ``child_of`` for many2one)
 
 :filter_domain:
-  :ref:`python expression <reference/view_architecture/python_expression>` that evaluates to a :ref:`reference/orm/domains` (default: ``False``)
+  :ref:`python expression <reference/view_architectures/python_expression>` that evaluates to a :ref:`reference/orm/domains` (default: ``False``)
 
   complete domain to use as the field's search domain, can use a
   ``self`` variable to inject the provided value in the custom
@@ -1950,7 +2094,7 @@ Fields can have the following attributes:
   ``filter_domain`` takes precedence.
 
 :context:
-  :ref:`python expression <reference/view_architecture/python_expression>` that evaluates to a dict_ (default: ``{}``)
+  :ref:`python expression <reference/view_architectures/python_expression>` that evaluates to a dict (default: ``{}``)
 
   allows adding context keys, including the user-provided values (which
   as for ``domain`` are available as a ``self`` variable, an array of
@@ -1963,7 +2107,7 @@ Fields can have the following attributes:
             ``filter_domain="[]"``
 
 :domain:
-  :ref:`python expression <reference/view_architecture/python_expression>` that evaluates to a :ref:`reference/orm/domains` (default: ``False``)
+  :ref:`python expression <reference/view_architectures/python_expression>` that evaluates to a :ref:`reference/orm/domains` (default: ``False``)
 
   if the field can provide an auto-completion
   (e.g. :class:`~odoo.fields.Many2one`), filters the possible
@@ -1975,7 +2119,7 @@ Fields can have the following attributes:
   make the field only available to specific users
 
 :invisible:
-  :ref:`python expression <reference/view_architecture/python_expression>` that evaluates to a boolean_ (default: ``False``)
+  :ref:`python expression <reference/view_architectures/python_expression>` that evaluates to a bool (default: ``False``)
 
   standard dynamic attributes based on record values. Hide the field
   if truthy or if the evaluate expression is truthy.
@@ -2000,13 +2144,13 @@ Below is a possible structure and the representation of its rendering.
       <field name="ref" filter_domain="[('name', 'like', self)]"/>
     </search>
 
-  .. image:: view_architecture/search_field.svg
+  .. image:: view_architectures/search_field.svg
     :class: col-xxl-6
 
-.. _reference/view_architecture/search/filter:
+.. _reference/view_architectures/search/filter:
 
 <filter>: predefined Filters
-----------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: xml
 
@@ -2022,17 +2166,17 @@ sections to the search filter.
 Filters can have the following attributes:
 
 :string:
-  string_ (mandatory)
+  string (mandatory)
 
   the label of the filter
 
 :domain:
-  :ref:`python expression <reference/view_architecture/python_expression>` that evaluates to a :ref:`reference/orm/domains` (default: ``False``)
+  :ref:`python expression <reference/view_architectures/python_expression>` that evaluates to a :ref:`reference/orm/domains` (default: ``False``)
 
   will be appended to the action's domain as part of the search domain.
 
 :date:
-  string_ (optional) :ref:`model <reference/orm/model>` field name
+  string (optional) :ref:`model <reference/orm/model>` field name
 
   the name of a field of type ``date`` or ``datetime``.
   Using this attribute has the effect to create
@@ -2068,7 +2212,7 @@ Filters can have the following attributes:
   Multi selection of options is allowed.
 
 :default_period:
-  string_ (optional)  chooses from ``today``, ``this_week``, ``this_month``, ``last_month``,
+  string (optional)  chooses from ``today``, ``this_week``, ``this_month``, ``last_month``,
   ``antepenultimate_month``, ``fourth_quarter``, ``third_quarter``, ``second_quarter``,
   ``first_quarter``, ``this_year``, ``last_year`` or ``antepenultimate_year``
 
@@ -2087,7 +2231,7 @@ Filters can have the following attributes:
     <filter name="filter_create_date" date="create_date" string="Creation Date" default_period="this_year,last_year"/>
 
 :context:
-  :ref:`python expression <reference/view_architecture/python_expression>` that evaluates to a dict_ (default: ``{}``)
+  :ref:`python expression <reference/view_architectures/python_expression>` that evaluates to a dict (default: ``{}``)
 
   a Python dictionary, merged into the action's domain to generate the
   search domain
@@ -2120,14 +2264,14 @@ Filters can have the following attributes:
       :class:`~odoo.fields.Field` attributes documentation.
 
 :name:
-  string_ (optional)
+  string (optional)
 
   logical name for the filter, can be used to :ref:`enable it by default
-  <reference/view_architecture/search/defaults>`, can also be used as
+  <reference/view_architectures/search/defaults>`, can also be used as
   :ref:`inheritance hook <reference/view_records/inheritance>`
 
 :help:
-  string_ (optional)
+  string (optional)
 
   a longer explanatory text for the filter, may be displayed as a
   tooltip
@@ -2138,7 +2282,7 @@ Filters can have the following attributes:
   make the field only available to specific users
 
 :invisible:
-  :ref:`python expression <reference/view_architecture/python_expression>` that evaluates to a boolean_ (default: ``False``)
+  :ref:`python expression <reference/view_architectures/python_expression>` that evaluates to a bool (default: ``False``)
 
   standard dynamic attributes based on record values. Hide the field
   if truthy or if the evaluate expression is truthy.
@@ -2190,13 +2334,13 @@ Below is a possible structure and the representation of its rendering.
           context="{'group_by': 'category_id'}"/>
     </search>
 
-  .. image:: view_architecture/search_filter.svg
+  .. image:: view_architectures/search_filter.svg
     :class: col-xxl-6
 
-.. _reference/view_architecture/search/separator:
+.. _reference/view_architectures/search/separator:
 
 <separator>: separate groups of filters
----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: xml
 
@@ -2206,13 +2350,13 @@ Below is a possible structure and the representation of its rendering.
     <FILTERS/>
   </search>
 
-can be used to separates groups of :ref:`filters <reference/view_architecture/search/filter>` in simple search views.
+can be used to separates groups of :ref:`filters <reference/view_architectures/search/filter>` in simple search views.
 `group` is more readable.
 
-.. user_interface/view_architecture/search/group:
+.. _reference/view_architectures/search/group:
 
 <group>: separate groups of filters
------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: xml
 
@@ -2222,11 +2366,13 @@ can be used to separates groups of :ref:`filters <reference/view_architecture/se
     </group>
   </search>
 
-can be used to separate groups of :ref:`filters <reference/view_architecture/search/filter>`, more readable than
+can be used to separate groups of :ref:`filters <reference/view_architectures/search/filter>`, more readable than
 ``separator`` in complex search views
 
+.. _reference/view_architectures/search/searchpanel:
+
 <searchpanel>: display a search panel
--------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: xml
 
@@ -2247,12 +2393,12 @@ are specified as direct children of the ``searchpanel`` with tag name ``field``.
   Fields in searchpanel can have the following attributes:
 
   :name:
-    string_ (mandatory) :ref:`model <reference/orm/model>` field name
+    string (mandatory) :ref:`model <reference/orm/model>` field name
 
     the name of the field to filter on
 
   :select:
-    string_ chooses from ``one``, ``multi``, ``groups``, ``string``, ``icon`` or ``color`` (default: ``one``)
+    string chooses from ``one``, ``multi``, ``groups``, ``string``, ``icon`` or ``color`` (default: ``one``)
 
     determines the behavior and display.
 
@@ -2335,11 +2481,11 @@ are specified as direct children of the ``searchpanel`` with tag name ``field``.
     will depend on the value currently selected for the field ``department_id``.
 
   :groupby:
-    string_ (optional) :ref:`model <reference/orm/model>` field name
+    string (optional) :ref:`model <reference/orm/model>` field name
 
     field name of the comodel (only available for many2one and many2many fields). Values will be grouped by that field.
 
-.. _reference/view_architecture/search/defaults:
+.. _reference/view_architectures/search/defaults:
 
 Search defaults
 ---------------
@@ -2373,135 +2519,157 @@ has the effect to activate first ``bar`` then ``foo``.
 
 .. ....................................................................
 
-.. _reference/view_architecture/kanban:
+.. _reference/view_architectures/kanban:
 
 Kanban
 ======
 
-.. container:: row
+Kanban views are a `kanban board`_ visualisation: they display records as "cards", halfway between a
+:ref:`list <reference/view_architectures/list>` view and a non-editable :ref:`form
+<reference/view_architectures/form>` view.
 
-  .. code-block:: xml
-    :class: col-xxl-6
-
-    <kanban>
-      ...
-    </kanban>
-
-  .. image:: view_architecture/kanban.svg
-    :class: col-xxl-6
-
-The kanban view is a `kanban board`_ visualisation: it displays records as
-"cards", halfway between a :ref:`list view <reference/view_architecture/list>` and a
-non-editable :ref:`form view <reference/view_architecture/form>`. Records may be grouped
-in columns for use in workflow visualisation or manipulation (e.g. tasks or
+Records may be grouped in columns for use in workflow visualisation or manipulation (e.g., tasks or
 work-progress management), or ungrouped (used simply to visualize records).
 
-.. note:: The kanban view will load and display a maximum of ten columns.
-          Any column after that will be closed (but can still be opened by
-          the user).
+The root element of Kanban views is `kanban`.
 
-The root element of the Kanban view is ``<kanban>``, it can use the following
-attributes_:
+.. admonition:: Possible structure and representation of its rendering
+
+   .. list-table::
+      :class: o-showcase-table
+
+      * - .. image:: view_architectures/kanban.svg
+             :align: center
+
+      * - .. code-block:: xml
+
+             <kanban>
+                 ...
+             </kanban>
+
+.. note::
+   Kanban views load and display a maximum of ten columns. Any column after that is closed but can
+   still be opened by the user.
+
+.. _reference/view_architectures/kanban/root:
+
+Root attributes
+---------------
+
+Optional attributes_ can be added to the root element `kanban` to customize the view.
 
 :string:
-  string_ (default: ``''``)
+  string (default: ``''``)
 
   This view title is displayed only if you open an action that has no name and
   whose target is 'new' (opening a dialog)
 
 :create:
-  boolean_ (default: ``True``)
+  bool (default: ``True``)
 
   Disable/enable record creation on the view.
 
 :edit:
-  boolean_ (default: ``True``)
+  bool (default: ``True``)
 
   Disable/enable record editing on the view.
 
 :delete:
-  boolean_ (default: ``True``)
+  bool (default: ``True``)
 
   Disable/enable record deletion on the view through the **Action** dropdown.
 
 :default_group_by:
-  string_ (optional) :ref:`model <reference/orm/model>` field name
+  string (optional) :ref:`model <reference/orm/model>` field name
 
   whether the kanban view should be grouped if no grouping is specified via
   the action or the current search. Should be the name of the field to group
   by when no grouping is otherwise specified
 
 :default_order:
-  string_ (optional)
+  string (optional)
 
   cards sorting order used if the user has not already sorted the records (via
   the list view)
 
 :class:
-  string_ (optional) `HTML class`_
+  string (optional) `HTML class`_
 
   adds HTML classes to the root HTML element of the Kanban view
 
 :examples:
-  string_ (optional)
+  string (optional)
 
   if set to a key in the `KanbanExamplesRegistry`_, examples on column setups will be available in the grouped kanban view. `Here <https://github.com/odoo/odoo/blob/99821fdcf89aa66ac9561a972c6823135ebf65c0/addons/project/static/src/js/project_task_kanban_examples.js#L27>`_ is an example of how to define those setups.
 
 :group_create:
-  boolean_ (default: ``True``)
+  bool (default: ``True``)
 
   whether the "Add a new column" bar is visible or not.
 
 :group_delete:
-  boolean_ (default: ``True``)
+  bool (default: ``True``)
 
   whether groups can be deleted via the context menu.
 
 :group_edit:
-  boolean_ (default: ``True``)
+  bool (default: ``True``)
 
   whether groups can be edited via the context menu.
 
 :archivable:
-  boolean_ (default: ``True``)
+  bool (default: ``True``)
 
   whether records belonging to a column can be archived / restored if an
   ``active`` field is defined on the model.
 
 :quick_create:
-  boolean_ (default: ``True``)
+  bool (default: ``True``)
 
   whether it should be possible to create records without switching to the
   form view. By default, ``quick_create`` is enabled when the Kanban view is
   grouped by many2one, selection, char or boolean fields, and disabled when not.
 
 :quick_create_view:
-  string_ (optional)
+  string (optional)
 
-  :ref:`Form <reference/view_architecture/form>` view reference, specifying the view used for records quick creation.
+  :ref:`Form <reference/view_architectures/form>` view reference, specifying the view used for records quick creation.
 
 :records_draggable:
-  boolean_ (default: ``True``)
+  bool (default: ``True``)
 
   whether it should be possible to drag records when kanban is grouped.
 
   Set to ``true`` to always enable it, and to ``false`` to always disable it.
 
 :groups_draggable:
-  boolean_ (default: ``True``)
+  bool (default: ``True``)
 
   whether it should be possible to resequence colunms when kanban is grouped.
 
   Set to ``true`` to always enable it, and to ``false`` to always disable it.
 
+.. include:: view_architectures/attribute_sample.rst
+
+.. include:: view_architectures/attribute_banner_route.rst
+
 .. todo:: VFE missing information on on_create attribute of kanban views.
 
-Possible children elements of the kanban view are: ``field``, ``progressbar`` or ``templates``
+.. _reference/view_architectures/kanban/components:
 
-.. _reference/view_architecture/kanban/field:
+Components
+----------
+
+Kanban views accept the following children elements: :ref:`field
+<reference/view_architectures/kanban/field>`, :ref:`header
+<reference/view_architectures/kanban/header>`, :ref:`progressbar
+<reference/view_architectures/kanban/progressbar>`, and :ref:`templates
+<reference/view_architectures/kanban/templates>`.
+
+.. _reference/view_architectures/kanban/field:
 
 <field>: render formatted values
---------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: xml
 
@@ -2516,7 +2684,7 @@ the kanban view, it does not need to be pre-declared.
 Fields can use the following attributes:
 
 :name:
-  string_ (mandatory) :ref:`model <reference/orm/model>` field name
+  string (mandatory) :ref:`model <reference/orm/model>` field name
 
   the name of the field to fetch
 
@@ -2535,13 +2703,13 @@ Fields can use the following attributes:
       </templates>
     </kanban>
 
-  .. image:: view_architecture/kanban_field.svg
+  .. image:: view_architectures/kanban_field.svg
     :class: col-xxl-6
 
-.. _reference/view_architecture/kanban/header:
+.. _reference/view_architectures/kanban/header:
 
 <header>: custom buttons in control panel
------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: xml
 
@@ -2555,11 +2723,11 @@ Fields can use the following attributes:
 .. rst-class:: o-definition-list
 
 ``<button>``
-  Defines custom buttons similar to :ref:`list view buttons <reference/view_architecture/list/button>` in the control panel
+  Defines custom buttons similar to :ref:`list view buttons <reference/view_architectures/list/button>` in the control panel
   that perform an action/call a model's method. The buttons which accepts an extra attribute when placed in a `header`:
 
   :display:
-    string_ chooses from ``display`` or ``always`` (default: ``display``)
+    string chooses from ``display`` or ``always`` (default: ``display``)
 
     By default, those buttons are only displayed when some records are
     selected, and they apply on the selection. When the attribute ``display``
@@ -2578,10 +2746,10 @@ Fields can use the following attributes:
   Currently, only the ``always`` option is usable because it is not yet possible
   to select records in a kanban view. This should happen soon.
 
-.. _reference/view_architecture/kanban/progressbar:
+.. _reference/view_architectures/kanban/progressbar:
 
 <progressbar>: progressbar on top of columns
---------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: xml
 
@@ -2595,7 +2763,7 @@ declares a progressbar element to put on top of kanban columns.
 Possible attributes are:
 
 :field:
-  string_ (mandatory) :ref:`model <reference/orm/model>` field name
+  string (mandatory) :ref:`model <reference/orm/model>` field name
 
   the name of the field whose values are used to subgroup column's records in
   the progressbar
@@ -2607,7 +2775,7 @@ Possible attributes are:
   or "muted" colors
 
 :sum_field:
-  string_ (optional) :ref:`model <reference/orm/model>` field name
+  string (optional) :ref:`model <reference/orm/model>` field name
 
   the name of the field whose column's records' values will be summed and
   displayed next to the progressbar (if omitted, displays the total number of
@@ -2627,13 +2795,13 @@ Possible attributes are:
       </templates>
     </kanban>
 
-  .. image:: view_architecture/kanban_progressbar.svg
+  .. image:: view_architectures/kanban_progressbar.svg
     :class: col-xxl-6
 
-.. _reference/view_architecture/kanban/templates:
+.. _reference/view_architectures/kanban/templates:
 
 <templates>: template of card
------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: xml
 
@@ -2713,7 +2881,7 @@ The kanban view uses mostly-standard :ref:`javascript qweb
 
     ``action``, ``object``
       standard behavior for :ref:`Odoo buttons
-      <reference/view_architecture/list/button>`, most attributes relevant to standard
+      <reference/view_architectures/list/button>`, most attributes relevant to standard
       Odoo buttons can be used.
     ``open``
       opens the card's record in the form view in read-only mode
@@ -2731,7 +2899,7 @@ If you need to extend the Kanban view, see :js:class:`KanbanRecord`.
 
 .. ....................................................................
 
-.. _reference/view_architecture/qweb:
+.. _reference/view_architectures/qweb:
 
 QWeb
 ====
@@ -2781,7 +2949,7 @@ The main additions of qweb-as-view to the basic qweb-as-template are:
 
 .. ....................................................................
 
-.. _reference/view_architecture/graph:
+.. _reference/view_architectures/graph:
 
 Graph
 =====
@@ -2809,6 +2977,8 @@ attributes:
 
 ``string`` (optional)
   string displayed in the breadcrumbs when redirecting to list view.
+
+.. include:: view_architectures/attribute_sample.rst
 
 The only allowed element within a graph view is ``field`` which can have the
 following attributes:
@@ -2851,7 +3021,7 @@ sorted on the string of the field.
 
 .. ....................................................................
 
-.. _reference/view_architecture/pivot:
+.. _reference/view_architectures/pivot:
 
 Pivot
 =====
@@ -2910,6 +3080,8 @@ following attributes:
   in the selectable measures (useful for fields that do not make sense aggregated,
   such as fields in different units, e.g. € and $).
 
+.. include:: view_architectures/attribute_sample.rst
+
 The measures are automatically generated from the model fields; only the
 aggregatable fields are used. Those measures are also alphabetically
 sorted on the string of the field.
@@ -2934,7 +3106,7 @@ For instance a timesheet pivot view could be defined as::
 
 .. ....................................................................
 
-.. _reference/view_architecture/calendar:
+.. _reference/view_architectures/calendar:
 
 Calendar
 ========
@@ -2951,23 +3123,23 @@ Their root element is ``<calendar>``. Available attributes_ on the
 calendar view are:
 
 :string:
-  string_ (default: ``''``)
+  string (default: ``''``)
 
   This view title is displayed only if you open an action that has no name and
   whose target is 'new' (opening a dialog)
 
 :create:
-  boolean_ (default: ``True``)
+  bool (default: ``True``)
 
   Disable/enable record creation on the view.
 
 :edit:
-  boolean_ (default: ``True``)
+  bool (default: ``True``)
 
   Disable/enable record editing on the view.
 
 :delete:
-  boolean_ (default: ``True``)
+  bool (default: ``True``)
 
   Disable/enable record deletion on the view through the **Action** dropdown.
 
@@ -3046,7 +3218,7 @@ Model Commons
 
 .. ....................................................................
 
-.. _reference/view_architecture/activity:
+.. _reference/view_architectures/activity:
 
 Activity
 ========
@@ -3054,7 +3226,7 @@ Activity
 The Activity view is used to display the activities linked to the records. The
 data are displayed in a chart with the records forming the rows and the activity
 types the columns. The first cell of each row displays a (customizable, see
-``templates``, quite similarly to :ref:`reference/view_architecture/kanban`) card representing
+``templates``, quite similarly to :ref:`reference/view_architectures/kanban`) card representing
 the corresponding record. When clicking on others cells, a detailed description
 of all activities of the same type for the record is displayed.
 
@@ -3094,7 +3266,7 @@ Possible children of the view element are:
 
   The activity view uses mostly-standard :ref:`javascript qweb
   <reference/qweb/javascript>` and provides the following context variables
-  (see :ref:`reference/view_architecture/kanban` for more details):
+  (see :ref:`reference/view_architectures/kanban` for more details):
 
   .. rst-class:: o-definition-list
 
@@ -3108,7 +3280,7 @@ Possible children of the view element are:
 
 .. ....................................................................
 
-.. _reference/view_architecture/cohort:
+.. _reference/view_architectures/cohort:
 
 Cohort
 ======
@@ -3192,9 +3364,11 @@ attributes:
     If the value is a domain, the domain is evaluated in the context of the current row's
     record, if ``True`` the corresponding attribute is set on the cell.
 
+.. include:: view_architectures/attribute_sample.rst
+
 .. ....................................................................
 
-.. _reference/view_architecture/grid:
+.. _reference/view_architectures/grid:
 
 Grid
 ====
@@ -3456,7 +3630,7 @@ Context Keys
 
 .. ....................................................................
 
-.. _reference/view_architecture/gantt:
+.. _reference/view_architectures/gantt:
 
 Gantt
 =====
@@ -3471,23 +3645,23 @@ The root element of gantt views is ``<gantt/>``, it has no children but can
 take the following attributes_:
 
 :string:
-  string_ (default: ``''``)
+  string (default: ``''``)
 
   This view title is displayed only if you open an action that has no name and
   whose target is 'new' (opening a dialog)
 
 :create:
-  boolean_ (default: ``True``)
+  bool (default: ``True``)
 
   Disable/enable record creation on the view.
 
 :edit:
-  boolean_ (default: ``True``)
+  bool (default: ``True``)
 
   Disable/enable record editing on the view.
 
 :delete:
-  boolean_ (default: ``True``)
+  bool (default: ``True``)
 
   Disable/enable record deletion on the view through the **Action** dropdown.
 
@@ -3511,7 +3685,7 @@ take the following attributes_:
 ``color``
   name of the field used to color the pills according to its value
 ``decoration-{$name}``
-  `python expression`_ that evaluates to a boolean_
+  `python expression`_ that evaluates to a bool
 
   allow changing the style of a cell's text based on the corresponding
   record's attributes.
@@ -3678,9 +3852,11 @@ take the following attributes_:
 
   will display the users avatars next to their names when grouped by user_id.
 
+.. include:: view_architectures/attribute_sample.rst
+
 .. ....................................................................
 
-.. _reference/view_architecture/map:
+.. _reference/view_architectures/map:
 
 Map
 ===
@@ -3747,11 +3923,9 @@ For example here is a map:
 
 .. _`accesskey`: https://www.w3.org/TR/html5/editing.html#the-accesskey-attribute
 .. _`attributes`: https://en.wikipedia.org/wiki/HTML_attribute
-.. _`boolean`: https://docs.python.org/3/library/stdtypes.html#boolean-values
 .. _`Bootstrap`: https://getbootstrap.com/
 .. _`bootstrap contextual color`: https://getbootstrap.com/docs/3.3/components/#available-variations
 .. _`Comma-separated values`: https://en.wikipedia.org/wiki/Comma-separated_values
-.. _`dict`: https://docs.python.org/3/library/stdtypes.html#mapping-types-dict
 .. _`floats`: https://developer.mozilla.org/en-US/docs/Web/CSS/float
 .. _`geoforwarding`: https://nominatim.org/release-docs/develop/
 .. _`HTML`: https://en.wikipedia.org/wiki/HTML
@@ -3768,5 +3942,4 @@ For example here is a map:
 .. _`python expression`: https://docs.python.org/3/library/stdtypes.html#boolean-operations-and-or-not
 .. _`relative path`: https://en.wikipedia.org/wiki/URL
 .. _`signing up`: https://account.mapbox.com/auth/signup/
-.. _`string`: https://docs.python.org/3/library/stdtypes.html#text-sequence-type-str
 .. _`tiles`: https://wiki.openstreetmap.org/wiki/Tile_data_server

@@ -17,7 +17,7 @@ read the reference documentation for a more complete overview.
 
 **Reference**: the documentation related to this chapter can be found in
 :doc:`../../reference/user_interface/view_records` and
-:doc:`../../reference/user_interface/view_architecture`.
+:doc:`../../reference/user_interface/view_architectures`.
 
 Inline Views
 ============
@@ -386,7 +386,7 @@ Search
 ------
 
 **Reference**: the documentation related to this section can be found in
-:ref:`reference/view_architecture/search` and :ref:`reference/view_architecture/search/defaults`.
+:ref:`reference/view_architectures/search` and :ref:`reference/view_architectures/search/defaults`.
 
 .. note::
 

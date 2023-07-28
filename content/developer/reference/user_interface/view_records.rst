@@ -33,29 +33,29 @@ all caps.
 View types
 ==========
 
-:ref:`Form <reference/view_architecture/form>`
+:ref:`Form <reference/view_architectures/form>`
   Display and edit the data from a single record.
-:ref:`List <reference/view_architecture/list>`
+:ref:`List <reference/view_architectures/list>`
   View and edit multiple records.
-:ref:`Search <reference/view_architecture/search>`
+:ref:`Search <reference/view_architectures/search>`
   Apply filters and perform searches. The results are displayed in the current list, kanban... view.
-:ref:`Kanban <reference/view_architecture/kanban>`
+:ref:`Kanban <reference/view_architectures/kanban>`
   Display records as "cards", configurable as a small template.
-:ref:`Qweb <reference/view_architecture/qweb>`
+:ref:`Qweb <reference/view_architectures/qweb>`
   Templating of reporting, website...
-:ref:`Graph <reference/view_architecture/graph>`
+:ref:`Graph <reference/view_architectures/graph>`
   Visualize aggregations over a number of records or record groups.
-:ref:`Pivot <reference/view_architecture/pivot>`
+:ref:`Pivot <reference/view_architectures/pivot>`
   Display aggregations as a `pivot table <https://en.wikipedia.org/wiki/Pivot_table>`_.
-:ref:`Calendar <reference/view_architecture/calendar>`
+:ref:`Calendar <reference/view_architectures/calendar>`
   Display records as events in a daily, weekly, monthly, or yearly calendar.
-:ref:`Cohort <reference/view_architecture/cohort>` |enterprise|
+:ref:`Cohort <reference/view_architectures/cohort>` |enterprise|
   Display and understand the way some data changes over a period of time.
-:ref:`Gantt <reference/view_architecture/gantt>` |enterprise|
+:ref:`Gantt <reference/view_architectures/gantt>` |enterprise|
   Display records as a Gantt chart.
-:ref:`Grid <reference/view_architecture/grid>` |enterprise|
+:ref:`Grid <reference/view_architectures/grid>` |enterprise|
   Display computed information in numerical cells; are hardly configurable.
-:ref:`Map <reference/view_architecture/map>` |enterprise|
+:ref:`Map <reference/view_architectures/map>` |enterprise|
   Display records on a map, and the routes between them.
 
 .. |enterprise| raw:: html
@@ -67,7 +67,7 @@ View types
 Fields
 ======
 
-View records expose a number of fields. They are optional unless specified otherwise.
+View records expose a number of fields.
 
 .. autoclass:: odoo.addons.base.models.ir_ui_view.View()
 
@@ -77,19 +77,21 @@ View records expose a number of fields. They are optional unless specified other
       Most Odoo view names start with the name of the addon and end with the type of view being
       discussed.
 
+      :requirement: Optional
       :type: :class:`~odoo.fields.Char`
 
    .. attribute:: model
 
       The model linked to the view, if applicable.
 
+      :requirement: Mandatory
       :type: :class:`~odoo.fields.Char`
-      :requirement: mandatory
 
    .. attribute:: arch
 
-      The description of the view layout depending on the :doc:`view type <view_architecture>`.
+      The description of the view layout depending on the :doc:`view type <view_architectures>`.
 
+      :requirement: Optional
       :type: :class:`~odoo.fields.Text`
 
    .. attribute:: groups_id
@@ -99,6 +101,7 @@ View records expose a number of fields. They are optional unless specified other
       If the view extends an existing view, the extension will be applied only for a given user, if
       that user has access to the provided `groups_id`.
 
+      :requirement: Optional
       :type: :class:`~odoo.fields.Many2many` -> :class:`~odoo.addons.base.models.res_users.Groups`
 
    .. attribute:: priority
@@ -110,6 +113,7 @@ View records expose a number of fields. They are optional unless specified other
       <reference/view_records/inheritance/resolution>`. When a view is requested by `id` and its
       mode is not `primary`, its *closest* parent with `mode` = `primary` is matched.
 
+      :requirement: Optional
       :type: :class:`~odoo.fields.Integer`
 
    .. attribute:: inherit_id
@@ -123,6 +127,7 @@ View records expose a number of fields. They are optional unless specified other
 
       See :ref:`reference/view_records/inheritance` for more information.
 
+      :requirement: Optional
       :type: :class:`~odoo.fields.Many2one`
 
    .. attribute:: mode
@@ -151,6 +156,7 @@ View records expose a number of fields. They are optional unless specified other
 
       See :ref:`reference/view_records/inheritance` for more information.
 
+      :requirement: Optional
       :type: :class:`~odoo.fields.Selection`: `extension` / `primary`
       :default: `extension`
 
