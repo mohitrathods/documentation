@@ -2009,10 +2009,10 @@ Below is a possible structure and the representation of its rendering.
 Search
 ======
 
-Search views are different from other view types: they don't display
-*content*. Although they apply to a specific model, they are used to filter
-another view's content (generally aggregated views
-e.g. :ref:`reference/view_architectures/list` or :ref:`reference/view_architectures/graph`).
+Search views are different from other view types in that they are not used to display content.
+Although they apply to a specific model, they are used to filter another view's content (usually
+aggregated views; e.g., :ref:`reference/view_architectures/list`, and
+:ref:`reference/view_architectures/graph`).
 
 The root element of search views is `search`. It takes no attributes_.
 
@@ -2524,8 +2524,8 @@ has the effect to activate first ``bar`` then ``foo``.
 Kanban
 ======
 
-Kanban views are a `kanban board`_ visualisation: they display records as "cards", halfway between a
-:ref:`list <reference/view_architectures/list>` view and a non-editable :ref:`form
+Kanban views are a used as a `kanban board`_ visualisation: they display records as "cards", halfway
+between a :ref:`list <reference/view_architectures/list>` view and a non-editable :ref:`form
 <reference/view_architectures/form>` view.
 
 Records may be grouped in columns for use in workflow visualisation or manipulation (e.g., tasks or
