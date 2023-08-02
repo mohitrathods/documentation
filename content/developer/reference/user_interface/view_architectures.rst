@@ -77,33 +77,11 @@ Root attributes
 
 Optional attributes_ can be added to the root element `form` to customize the view.
 
-.. attribute:: string
-   :noindex:
+.. include:: view_architectures/attribute_string.rst
 
-   The view title. It is displayed only if you open an action that has no name and whose target is
-   `new` (opening a dialog).
+.. include:: view_architectures/attribute_create.rst
 
-   :requirement: Optional
-   :type: str
-   :default: `''`
-
-.. attribute:: create
-   :noindex:
-
-   Disable/enable record creation on the view.
-
-   :requirement: Optional
-   :type: bool
-   :default: `True`
-
-.. attribute:: edit
-   :noindex:
-
-   Disable/enable record editing on the view.
-
-   :requirement: Optional
-   :type: bool
-   :default: `True`
+.. include:: view_architectures/attribute_edit.rst
 
 .. attribute:: duplicate
    :noindex:
@@ -114,19 +92,12 @@ Optional attributes_ can be added to the root element `form` to customize the vi
    :type: bool
    :default: `True`
 
-.. attribute:: delete
-   :noindex:
-
-   Disable/enable record deletion on the view through the **Action** dropdown.
-
-   :requirement: Optional
-   :type: bool
-   :default: `True`
+.. include:: view_architectures/attribute_delete.rst
 
 .. attribute:: js_class
    :noindex:
 
-   Name of the JavaScript component the webclient will instantiate instead of the form view.
+   The name of the JavaScript component the webclient will instantiate instead of the form view.
 
    :requirement: Optional
    :type: str
@@ -166,15 +137,15 @@ Placeholders are denoted in all caps.
 The `field` element renders (and allows editing of, possibly) a single field of the current record.
 
 Using the same field multiple times in a form view is supported, and the fields can receive
-different values for the attributes `invisible` and `readonly`. These fields may have the same
+different values for the `invisible` and `readonly` attributes. These fields may have the same
 values but can be displayed differently. However, the behavior is not guaranteed when several fields
-exist with different values for the 'required' modifier.
+exist with different values for the `required` attribute.
 
 .. code-block:: xml
 
-  <form>
-    <field name="FIELD_NAME"/>
-  </form>
+   <form>
+       <field name="FIELD_NAME"/>
+   </form>
 
 The `field` element can have the following attributes:
 
@@ -1321,127 +1292,151 @@ Root attributes
 
 Optional attributes_ can be added to the root element `tree` to customize the view.
 
-:string:
-  string (default: ``''``)
+.. include:: view_architectures/attribute_string.rst
 
-  This view title is displayed only if you open an action that has no name and
-  whose target is 'new' (opening a dialog)
+.. include:: view_architectures/attribute_create.rst
 
-:create:
-  bool (default: ``True``)
+.. include:: view_architectures/attribute_edit.rst
 
-  Disable/enable record creation on the view.
+.. include:: view_architectures/attribute_delete.rst
 
-:edit:
-  bool (default: ``True``)
+.. attribute:: import
+   :noindex:
 
-  Disable/enable record editing on the view.
+   Disable/enable record import from data on the view.
 
-  If the ``edit`` attribute is set to ``false``, the ``editable`` option will be ignored.
+   :requirement: Optional
+   :type: bool
+   :default: `True`
 
-:delete:
-  bool (default: ``True``)
+.. attribute:: export_xlsx
+   :noindex:
 
-  Disable/enable record deletion on the view through the **Action** dropdown.
+   Disable/enable record export to data on the view.
 
-:import:
-  bool (default: ``True``)
+   :requirement: Optional
+   :type: bool
+   :default: `True`
 
-  Disable/enable record import data on the view.
+.. attribute:: editable
+   :noindex:
 
-:export_xlsx:
-  bool (default: ``True``)
+   Make the view's records editable in-place, and allow creating new records from a row of the list.
+   It can have two different values:
 
-  Disable/enable record export data on the view.
+   .. attribute:: top
+      :noindex:
 
-:editable:
-  string (optional) chooses from ``top`` or ``bottom``
+      New records are created from the top of the list.
 
-  by default, selecting a list view's row opens the corresponding
-  :ref:`form view <reference/view_architectures/form>`. The ``editable`` attributes
-  makes the list view itself editable in-place.
+   .. attribute:: bottom
+      :noindex:
 
-  Valid values are ``top`` and ``bottom``, making *new* records appear respectively at
-  the top or bottom of the list.
+      New records are created from the bottom of the list.
 
-  The architecture for the inline :ref:`form view <reference/view_architectures/form>`
-  is derived from the list view. Most attributes valid on a :ref:`form view
-  <reference/view_architectures/form>`'s fields and buttons are thus accepted by list
-  views although they may not have any meaning if the list view is non-editable.
+   The architecture for the inline :ref:`form <reference/view_architectures/form>` view is derived
+   from the list view. Most attributes valid on a form view's fields and buttons are thus accepted
+   by list views, although they may not have any meaning if the list view is non-editable.
 
-  If the ``edit`` attribute is set to ``false``, the ``editable`` option **will be ignored**.
+   .. important::
+      This behavior is disabled if the `edit` attribute is set to `False`.
 
-:multi_edit:
-  ``1`` (optional)
+   :requirement: Optional
+   :type: str
+   :default: `''`
 
-  editable or not editable list can activate the multi-editing feature that allows to
-  change the same field to the same value for multiple records in a single operation by
-  defining the ``multi_edit="1"``
+.. attribute:: multi_edit
+   :noindex:
 
-:default_group_by:
-  string (optional) :ref:`model <reference/orm/model>` field name
+   Activate the multi-editing feature that allows updating a field to the same value for multiple
+   records at once.
 
-  whether the list view should be grouped if no grouping is specified via the action or
-  the current search. Should be the name of the field to group by when no grouping is
-  otherwise specified
+   It accepts only the value `'1'`.
 
-:default_order:
-  `Comma-separated values`_ (optional)
+   :requirement: Optional
+   :type: str
+   :default: `''`
 
-  overrides the ordering of the model, replacing the model's order (:attr:`~odoo.models.BaseModel._order` model attribute).
-  The value is a comma-separated list of :ref:`fields <reference/orm/fields>`, postfixed by ``desc`` to
-  sort in reverse order:
+.. attribute:: default_group_by
+   :noindex:
 
-  .. code-block:: xml
+   The :ref:`model <reference/orm/model>` field name on which the list should be grouped by default,
+   if no grouping is specified via the action or the current :ref:`search
+   <reference/view_architectures/search>`.
 
-    <tree default_order="sequence,name desc">
-      ...
-    </tree>
+   :requirement: Optional
+   :type: str
+   :default: `''`
 
-:decoration-bf:
-:decoration-it:
-:decoration-danger:
-:decoration-warning:
-:decoration-info:
-:decoration-muted:
-:decoration-primary:
-:decoration-success:
-  :ref:`python expression <reference/view_architectures/python_expression>` that evaluates to a bool (default: ``False``)
+.. attribute:: default_order
+   :noindex:
 
-  allow changing the style of a cell's text based on the corresponding
-  record's attributes:
+   A comma-separated list of :ref:`model <reference/orm/model>` fields names that overrides the
+   ordering defined on the model through the :attr:`~odoo.models.BaseModel._order` attribute.
 
-  * ``bf`` for ``font-weight: bold``
-  * ``it`` for ``font-style: italic``
-  * ``danger``, ``info``, ``muted``, ``primary``, ``success`` or ``warning`` add relative `bootstrap contextual color`_.
+   To inverse the sorting order of a field, postfix it with `desc`, separated by a space.
 
-  Define a conditional display of a record in the style of a row's text based
-  on the corresponding record's attributes. For each record, the expression is
-  evaluated with the record's attributes as context values and if ``true``, the
-  corresponding style is applied to the row.
+   .. example::
+      .. code-block:: xml
 
-  .. code-block:: xml
+         <tree default_order="sequence,name desc">
+             ...
+         </tree>
 
-    <tree decoration-danger="field_qty > field_limit">
-      ...
-    </tree>
+   :requirement: Optional
+   :type: str
+   :default: `''`
 
-:limit:
-  integer_ (default: ``80`` for list view and ``40`` for x2many list in form view)
+.. attribute:: decoration-<style>
+   :noindex:
 
-  the default size of a page. It must be a positive integer
+   The style that should be applied to matching records' rows, as a Python expression that evaluates
+   to a bool.
 
-:groups_limit:
-  integer_ (default: ``80`` for list view and ``40`` for x2many list in form view)
+   `<style>` must be replaced by one of `bf` (bold), `it` (italic), `info`, `warning`, `danger`,
+   `muted`, `primary`, and `success`.
 
-  when the list view is grouped, the default number of groups of a page. It must be a
-  position integer
+   .. example::
+      .. code-block:: xml
 
-:expand:
-  bool (default: ``False``)
+         <tree decoration-danger="field_qty &gt; field_limit">
+             ...
+         </tree>
 
-  when the list view is grouped, automatically open the first level of groups if set
-  to true. (Warning: It may be slow depending on the number of groups)
+   :requirement: Optional
+   :type: :ref:`Python expression <reference/view_architectures/python_expression>`
+   :default: `False`
+
+.. attribute:: limit
+   :noindex:
+
+   The default size of a page. It must be strictly positive.
+
+   :requirement: Optional
+   :type: int
+   :default: `80` for list views, `40` for X2many lists in form views
+
+.. attribute:: groups_limit
+   :noindex:
+
+   The default number of groups on a page when the list view is grouped. It must be strictly
+   positive.
+
+   :requirement: Optional
+   :type: int
+   :default: `80` for list views, `40` for X2many lists in form views
+
+.. attribute:: expand
+   :noindex:
+
+   Whether the first level of groups should be opened by default when the list view is grouped.
+
+   .. warning::
+      It may be slow, depending on the number of groups.
+
+   :requirement: Optional
+   :type: bool
+   :default: `False`
 
 .. include:: view_architectures/attribute_sample.rst
 
@@ -1459,19 +1454,23 @@ List views accept the following children elements: :ref:`field
 <reference/view_architectures/list/header>`, :ref:`control, and create
 <reference/view_architectures/list/control>`.
 
+Placeholders are denoted in all caps.
+
 .. _reference/view_architectures/list/field:
 
-<field>: render formatted values
+`field`: render formatted values
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The `field` element renders (and allows editing of, possibly) a single field of all current records
+as a column.
 
 .. code-block:: xml
 
-  <tree>
-    <field name="FIELD_NAME"/>
-  </tree>
+   <tree>
+       <field name="FIELD_NAME"/>
+   </tree>
 
-defines a column where the corresponding field should be displayed for
-each record. Can use the following attributes:
+The `field` element can have the following attributes:
 
 :name:
   string (mandatory) :ref:`model <reference/orm/model>` field name
