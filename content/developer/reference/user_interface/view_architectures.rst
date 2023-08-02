@@ -1552,10 +1552,6 @@ The `field` element can have the following attributes:
    a situation where it can be grouped. However, it does not pose a problem for X2many fields in a
    form view, as they cannot be grouped.
 
-Below is a possible structure and the representation of its rendering.
-
-.. container:: row
-
 .. admonition:: Possible structure and representation of its rendering
 
    .. list-table::
