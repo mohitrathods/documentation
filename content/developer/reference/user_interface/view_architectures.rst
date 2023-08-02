@@ -77,11 +77,11 @@ Root attributes
 
 Optional attributes_ can be added to the root element `form` to customize the view.
 
-.. include:: view_architectures/attribute_string.rst
+.. include:: view_architectures/root_attribute_string.rst
 
-.. include:: view_architectures/attribute_create.rst
+.. include:: view_architectures/root_attribute_create.rst
 
-.. include:: view_architectures/attribute_edit.rst
+.. include:: view_architectures/root_attribute_edit.rst
 
 .. attribute:: duplicate
    :noindex:
@@ -92,7 +92,7 @@ Optional attributes_ can be added to the root element `form` to customize the vi
    :type: bool
    :default: `True`
 
-.. include:: view_architectures/attribute_delete.rst
+.. include:: view_architectures/root_attribute_delete.rst
 
 .. attribute:: js_class
    :noindex:
@@ -112,7 +112,7 @@ Optional attributes_ can be added to the root element `form` to customize the vi
    :type: bool
    :default: `False`
 
-.. include:: view_architectures/attribute_banner_route.rst
+.. include:: view_architectures/root_attribute_banner_route.rst
 
 .. _reference/view_architectures/form/semantic:
 
@@ -149,13 +149,7 @@ exist with different values for the `required` attribute.
 
 The `field` element can have the following attributes:
 
-.. attribute:: name
-   :noindex:
-
-   The name of the :ref:`model <reference/orm/model>` field to render.
-
-   :type: str
-   :requirement: Mandatory
+.. include:: view_architectures/field_attribute_name.rst
 
 .. attribute:: id
    :noindex:
@@ -163,43 +157,22 @@ The `field` element can have the following attributes:
    The node id. Useful when there are several occurrences of the same field in the view (see
    :ref:`reference/view_architectures/form/label`).
 
-   :type: str
    :requirement: Optional
+   :type: str
    :default: The field name
 
-.. attribute:: string
-   :noindex:
-
-   The label of the field.
-
-   :type: str
-   :requirement: Optional
-   :default: The `string` attribute of the model's field
+.. include:: view_architectures/field_attribute_string.rst
 
 .. attribute:: help
    :noindex:
 
    The tooltip displayed when hovering the field or its label.
 
-   :type: str
    :requirement: Optional
+   :type: str
    :default: `''`
 
-.. attribute:: widget
-   :noindex:
-
-   The rendering method and context to use in place of the default one assigned to the field's type
-   (e.g., :class:`~odoo.fields.Char`, :class:`~odoo.fields.Many2one`). See
-   :ref:`reference/js/widgets`.
-
-   .. example::
-      .. code-block:: xml
-
-         <field name="tag_ids" widget="many2many_tags"/>
-
-   :type: str
-   :requirement: Optional
-   :default: `''`
+.. include:: view_architectures/field_attribute_widget.rst
 
 .. attribute:: options
    :noindex:
@@ -212,45 +185,17 @@ The `field` element can have the following attributes:
 
          <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'FIELD_NAME', 'no_quick_create': True}"/>
 
-   :type: :ref:`Python expression <reference/view_architectures/python_expression>`
    :requirement: Optional
+   :type: :ref:`Python expression <reference/view_architectures/python_expression>`
    :default: `{}`
 
-.. attribute:: readonly
-   :noindex:
+.. include:: view_architectures/field_attribute_readonly.rst
 
-   Whether the field can be modified by the user (`False`) or is read-only (`True`), as a Python
-   expression that evaluates to a bool.
+.. include:: view_architectures/field_attribute_required.rst
 
-   .. example::
-      .. code-block:: xml
+.. include:: view_architectures/generic_attribute_invisible.rst
 
-         <field name="fname_a" readonly="True"/>
-         <field name="fname_b" readonly="name_a in [fname_b, parent.fname_d]"/>
-
-   :type: :ref:`Python expression <reference/view_architectures/python_expression>`
-   :requirement: Optional
-   :default: `False`
-
-.. attribute:: required
-   :noindex:
-
-   Whether the field can be left empty (`False`) or must be set (`True`), as a Python expression
-   that evaluates to a bool.
-
-   .. example::
-      .. code-block:: xml
-
-         <field name="fname_a" required="True"/>
-         <field name="fname_b" required="fname_c != 3 and fname_a == parent.fname_d"/>
-
-   :type: :ref:`Python expression <reference/view_architectures/python_expression>`
-   :requirement: Optional
-   :default: `False`
-
-.. include:: view_architectures/attribute_invisible.rst
-
-.. include:: view_architectures/attribute_groups.rst
+.. include:: view_architectures/generic_attribute_groups.rst
 
 .. attribute:: domain
    :noindex:
@@ -263,8 +208,8 @@ The `field` element can have the following attributes:
 
          <field name="fname" domain="[('fname_a', '=', parent.fname_b)]"/>
 
-   :type: :ref:`Python expression <reference/view_architectures/python_expression>`
    :requirement: Optional
+   :type: :ref:`Python expression <reference/view_architectures/python_expression>`
    :default: `[]`
    :scope: Relational fields
 
@@ -291,8 +236,8 @@ The `field` element can have the following attributes:
              'OTHER_BUSINESS_KEY': ANY,
            }"/>
 
-   :type: :ref:`Python expression <reference/view_architectures/python_expression>`
    :requirement: Optional
+   :type: :ref:`Python expression <reference/view_architectures/python_expression>`
    :default: `{}`
    :scope: Relational fields
 
@@ -301,8 +246,8 @@ The `field` element can have the following attributes:
 
    Whether the field label should be hidden.
 
-   :type: bool
    :requirement: Optional
+   :type: bool
    :default: `False`
    :scope: Fields that are a direct child of a `group` element
 
@@ -313,8 +258,8 @@ The `field` element can have the following attributes:
    However, it *should not* be an example of data, as users may confuse placeholder text with filled
    fields.
 
-   :type: str
    :requirement: Optional
+   :type: str
    :default: `''`
 
 .. attribute:: mode
@@ -323,19 +268,20 @@ The `field` element can have the following attributes:
    The comma-separated list of display modes (view types) to use for the field's linked records.
    Allowed modes are: `tree`, `form`, `kanban`, and `graph`.
 
+   :requirement: Optional
    :type: str
    :default: `tree`
    :scope: :class:`~odoo.fields.One2many` fields
 
-.. include:: view_architectures/attribute_class.rst
+.. include:: view_architectures/generic_attribute_class.rst
 
 .. attribute:: filename
    :noindex:
 
    The name of the related field providing the name of the file.
 
-   :type: str
    :requirement: Optional
+   :type: str
    :default: `''`
    :scope: :class:`~odoo.fields.Binary` fields
 
@@ -344,8 +290,8 @@ The `field` element can have the following attributes:
 
    Whether the field stores a password and thus its data should not be displayed.
 
-   :type: bool
    :requirement: Optional
+   :type: bool
    :default: `False`
    :scope: :class:`~odoo.fields.Char` fields
 
@@ -355,8 +301,8 @@ The `field` element can have the following attributes:
    The XMLID of the specific Kanban :doc:`view record <view_records>` that should be used when
    selecting records in a mobile environment.
 
-   :type: str
    :requirement: Optional
+   :type: str
    :default: `''`
    :scope: Relational fields
 
@@ -365,8 +311,8 @@ The `field` element can have the following attributes:
 
    Whether the field is focused when the view opens. It can be applied to only one field of a view.
 
-   :type: bool
    :requirement: Optional
+   :type: bool
    :default: `False`
 
 .. note::
@@ -418,21 +364,21 @@ The `label` element can have the following attributes:
    components associated with these field nodes, these labels must have unique `for` attribute; in
    this case, referencing the `id` attribute of the corresponding field nodes.
 
-   :type: str
    :requirement: Mandatory
+   :type: str
 
 .. attribute:: string
    :noindex:
 
    The label to display.
 
-   :type: str
    :requirement: Optional
+   :type: str
    :default: The field's label coming from the field definition on the model
 
-.. include:: view_architectures/attribute_class.rst
+.. include:: view_architectures/generic_attribute_class.rst
 
-.. include:: view_architectures/attribute_invisible.rst
+.. include:: view_architectures/generic_attribute_invisible.rst
 
 .. _reference/view_architectures/form/button:
 
@@ -474,8 +420,8 @@ The `button` element can have the following attributes:
          <button type="object" name="action_create_new" string="Create document"/>
          <button type="action" name="%(addon.action_create_view)d" string="Create and Edit"/>
 
-   :type: str
    :requirement: Mandatory
+   :type: str
 
 .. attribute:: name
    :noindex:
@@ -483,8 +429,8 @@ The `button` element can have the following attributes:
    The method to call if the `type` is `object`, or the XMLID of the action to load if the `type` is
    `action`.
 
-   :type: str
    :requirement: Optional
+   :type: str
    :default: `''`
 
 .. attribute:: string
@@ -497,8 +443,8 @@ The `button` element can have the following attributes:
 
          <button type="object" name="action_create_new" string="Create document"/>
 
-   :type: str
    :requirement: Optional
+   :type: str
    :default: `''`
 
 .. attribute:: icon
@@ -511,8 +457,8 @@ The `button` element can have the following attributes:
 
          <button type="object" name="remove" icon="fa-trash"/>
 
-   :type: str
    :requirement: Optional
+   :type: str
    :default: `''`
 
 .. attribute:: help
@@ -525,8 +471,8 @@ The `button` element can have the following attributes:
 
          <button type="object" name="remove" icon="fa-trash" help="Revoke"/>
 
-   :type: str
    :requirement: Optional
+   :type: str
    :default: `''`
 
 .. attribute:: context
@@ -540,15 +486,15 @@ The `button` element can have the following attributes:
 
          <button name="button_confirm" type="object" context="{'BUSINESS_KEY': ANY}" string="LABEL"/>
 
-   :type: :ref:`Python expression <reference/view_architectures/python_expression>`
    :requirement: Optional
+   :type: :ref:`Python expression <reference/view_architectures/python_expression>`
    :default: `{}`
 
-.. include:: view_architectures/attribute_groups.rst
+.. include:: view_architectures/generic_attribute_groups.rst
 
-.. include:: view_architectures/attribute_invisible.rst
+.. include:: view_architectures/generic_attribute_invisible.rst
 
-.. include:: view_architectures/attribute_class.rst
+.. include:: view_architectures/generic_attribute_class.rst
 
 .. attribute:: special
    :noindex:
@@ -570,8 +516,8 @@ The `button` element can have the following attributes:
 
          <button special="cancel" icon="fa-trash"/>
 
-   :type: str
    :requirement: Optional
+   :type: str
    :default: `''`
 
 .. attribute:: confirm
@@ -585,8 +531,8 @@ The `button` element can have the following attributes:
 
          <button name="action_destroye_gate" string="Send the goa'uld" type="object" confirm="Do you confirm the action?"/>
 
-   :type: str
    :requirement: Optional
+   :type: str
    :default: `''`
 
 .. attribute:: data-hotkey
@@ -602,8 +548,8 @@ The `button` element can have the following attributes:
          <button type="object" name="action_confirm" string="Confirm" data-hotkey="c"/>
          <button type="object" name="action_tear" string="Tear the sheet" data-hotkey="shift+k"/>
 
-   :type: str
    :requirement: Optional
+   :type: str
    :default: `''`
 
 .. _reference/view_architectures/form/chatter:
@@ -697,8 +643,8 @@ The `group` element can have the following attributes:
 
    The title displayed for the group.
 
-   :type: str
    :requirement: Optional
+   :type: str
    :default: `''`
 
 .. attribute:: col
@@ -706,8 +652,8 @@ The `group` element can have the following attributes:
 
    The number of columns in a `group`.
 
-   :type: int
    :requirement: Optional
+   :type: int
    :default: `2`
 
 .. attribute:: colspan
@@ -715,11 +661,11 @@ The `group` element can have the following attributes:
 
    The number of columns taken by a child element.
 
-   :type: int
    :requirement: Optional
+   :type: int
    :default: `1`
 
-.. include:: view_architectures/attribute_invisible.rst
+.. include:: view_architectures/generic_attribute_invisible.rst
 
 .. admonition:: Possible structure and representation of its rendering
 
@@ -799,11 +745,11 @@ The `page` element can have the following attributes:
 
    The title of the tab.
 
-   :type: `str`
    :requirement: Optional
+   :type: `str`
    :default: `''`
 
-.. include:: view_architectures/attribute_invisible.rst
+.. include:: view_architectures/generic_attribute_invisible.rst
 
 .. admonition:: Possible structure and representation of its rendering
 
@@ -886,8 +832,8 @@ The `<separator>` element can have the following attributes:
 
    The title as a section title.
 
-   :type: `str`
    :requirement: Optional
+   :type: `str`
    :default: `''`
 
 .. admonition:: Possible structure and representation of its rendering
@@ -1113,9 +1059,9 @@ The `app` element can have the following attributes:
    :type: path_
    :default: A path computed with the `name` attribute: :file:`/{name}/static/description/icon.png`
 
-.. include:: view_architectures/attribute_groups.rst
+.. include:: view_architectures/generic_attribute_groups.rst
 
-.. include:: view_architectures/attribute_invisible.rst
+.. include:: view_architectures/generic_attribute_invisible.rst
 
 .. _reference/view_architectures/settings/block:
 
@@ -1157,9 +1103,9 @@ The `block` element can have the following attributes:
    :type: str
    :default: `''`
 
-.. include:: view_architectures/attribute_groups.rst
+.. include:: view_architectures/generic_attribute_groups.rst
 
-.. include:: view_architectures/attribute_invisible.rst
+.. include:: view_architectures/generic_attribute_invisible.rst
 
 .. _reference/view_architectures/settings/setting:
 
@@ -1258,9 +1204,9 @@ The `<setting>` element can have the following attributes:
    :type: `path_`
    :default: `''`
 
-.. include:: view_architectures/attribute_groups.rst
+.. include:: view_architectures/generic_attribute_groups.rst
 
-.. include:: view_architectures/attribute_invisible.rst
+.. include:: view_architectures/generic_attribute_invisible.rst
 
 .. ....................................................................
 
@@ -1292,13 +1238,13 @@ Root attributes
 
 Optional attributes_ can be added to the root element `tree` to customize the view.
 
-.. include:: view_architectures/attribute_string.rst
+.. include:: view_architectures/root_attribute_string.rst
 
-.. include:: view_architectures/attribute_create.rst
+.. include:: view_architectures/root_attribute_create.rst
 
-.. include:: view_architectures/attribute_edit.rst
+.. include:: view_architectures/root_attribute_edit.rst
 
-.. include:: view_architectures/attribute_delete.rst
+.. include:: view_architectures/root_attribute_delete.rst
 
 .. attribute:: import
    :noindex:
@@ -1438,9 +1384,9 @@ Optional attributes_ can be added to the root element `tree` to customize the vi
    :type: bool
    :default: `False`
 
-.. include:: view_architectures/attribute_sample.rst
+.. include:: view_architectures/root_attribute_sample.rst
 
-.. include:: view_architectures/attribute_banner_route.rst
+.. include:: view_architectures/root_attribute_banner_route.rst
 
 .. _reference/view_architectures/list/components:
 
@@ -1464,6 +1410,8 @@ Placeholders are denoted in all caps.
 The `field` element renders (and allows editing of, possibly) a single field of all current records
 as a column.
 
+Using the same field multiple times in a list view is not supported
+
 .. code-block:: xml
 
    <tree>
@@ -1472,217 +1420,159 @@ as a column.
 
 The `field` element can have the following attributes:
 
-:name:
-  string (mandatory) :ref:`model <reference/orm/model>` field name
+.. include:: view_architectures/field_attribute_name.rst
 
-  the name of the field to display in the current model. A given name
-  can only be used once per view
+.. include:: view_architectures/field_attribute_string.rst
 
-:string:
-  string (optional)
+.. attribute:: optional
+   :noindex:
 
-  the title of the field's column (by default, uses the ``string`` of
-  the model's field)
+   Make the visibility of the field optional. The field's column can be hidden or shown through a
+   button on the view's header.
 
-:optional:
-  string (optional) chooses from ``hide`` or ``show``
+   It can have two different values:
 
-  if set, the visibility of the field is optional. The display can be chosen
-  via a button in the list view. By default fields will be visible if the value
-  is `show` or not visible if `hide`.
+   .. attribute:: show
+      :noindex:
 
-  .. code-block:: xml
+      The field is shown by default.
 
-    <field name="fname_a" optional="hide"/>
+   .. attribute:: hide
+      :noindex:
 
-:readonly:
-  :ref:`python expression <reference/view_architectures/python_expression>` that evaluates to a bool (default: ``False``)
+      The field is hidden by default.
 
-  standard dynamic attributes based on record values. If the value is truthy
-  or if the evaluate expression is truthy, display the field in both readonly
-  and edit mode, but never make it editable.
+   .. example::
+      .. code-block:: xml
 
-  .. code-block:: xml
+         <field name="fname_a" optional="show"/>
+         <field name="fname_b" optional="hide"/>
 
-    <field name="fname_a" readonly="True"/>
-    <field name="fname_b" readonly="name_a in [fname_b, parent.fname_d]"/>
+   :requirement: Optional
+   :type: str
 
-:required:
-  :ref:`python expression <reference/view_architectures/python_expression>` that evaluates to a bool (default: ``False``)
+.. include:: view_architectures/field_attribute_readonly.rst
 
-  standard dynamic attributes based on record values. If the value is truthy
-  or if the evaluate expression is truthy, generates an error and prevents
-  saving the record if the field doesn't have a value.
+.. include:: view_architectures/field_attribute_required.rst
 
-  .. code-block:: xml
+.. include:: view_architectures/generic_attribute_invisible.rst
 
-    <field name="fname_a" required="True"/>
-    <field name="fname_b" required="fname_c != 3 and fname_a == parent.fname_d"/>
+.. attribute:: column_invisible
+   :noindex:
 
-:invisible:
-  :ref:`python expression <reference/view_architectures/python_expression>` that evaluates to a bool (default: ``False``)
+   Whether the field should be fetched, but not displayed, as a Python expression that evaluates to
+   a bool.
 
-  standard dynamic attributes based on record values. Hide the field if truthy
-  or if the evaluate expression is truthy.
+   It is necessary for fields that should not be displayed, but that are used, for example by
+   `@colors`, or an expression.
 
-  Fetches and stores the field, but doesn't display the column in the
-  table. Necessary for fields which shouldn't be displayed but are
-  used by e.g. ``@colors`` or an expression.
+   Unlike `invisible`, the entire column is invisible and is evaluated without the subtree values.
 
-  .. code-block:: xml
+   .. example::
+      .. code-block:: xml
 
-    <field name="fname_a" invisible="True"/>
-    <field name="fname_b" invisible="fname_c != 3 and fname_a == parent.fname_d"/>
+         <field name="product_is_late" column_invisible="parent.has_late_products == False"/>
 
-:column_invisible:
-  :ref:`python expression <reference/view_architectures/python_expression>` that evaluates to a bool (default: ``False``)
+   .. note::
+      Only in case of list sub-views (One2many/Many2many display in a form view).
 
-  Fetches and stores the field, but doesn't display the column in the table.
-  Necessary for fields which shouldn't be displayed but are used by e.g.
-  ``@colors`` or an expression.
+   :requirement: Optional
+   :type: :ref:`Python expression <reference/view_architectures/python_expression>`
+   :default: `False`
+   :scope: X2many lists in form views
 
-  Unlike ``invisible``, if the evaluate expression is truly the entire column
-  invisible and is evaluate without the subtree values.
+.. include:: view_architectures/generic_attribute_groups.rst
 
-  .. code-block:: xml
+.. attribute:: decoration-<style>
+   :noindex:
 
-    <field name="product_is_late" column_invisible="parent.has_late_products == False"/>
+   The style that should be applied to matching records' field, as a Python expression that
+   evaluates to a bool.
 
-  .. note::
-    Only in case of list sub-views (One2many/Many2many display in a form view).
+   `<style>` must be replaced by one of `bf` (bold), `it` (italic), `info`, `warning`, `danger`,
+   `muted`, `primary`, and `success`.
 
-:groups:
-  `Comma-separated values`_ (optional) whose choices are the :class:`~odoo.addons.base.models.res_users.Groups` reference
+   .. example::
+      .. code-block:: xml
 
-  lists the groups which should be able to see the field (removed server side
-  if the user's groups do not match)
+         <field name="name" decoration-bf="1"/>
+         <field name="quantity" decoration-info="state == 'draft'"/>
 
-  .. code-block:: xml
+   :requirement: Optional
+   :type: :ref:`Python expression <reference/view_architectures/python_expression>`
+   :default: `False`
 
-    <field name="fname" groups="base.group_no_one,!base.group_multi_company"/>
+.. include:: view_architectures/field_attribute_widget.rst
 
-:decoration-bf:
-:decoration-it:
-:decoration-danger:
-:decoration-warning:
-:decoration-info:
-:decoration-muted:
-:decoration-primary:
-:decoration-success:
-  :ref:`python expression <reference/view_architectures/python_expression>` that evaluates to a bool (default: ``False``)
+.. attribute:: sum, avg
+   :noindex:
 
-  allow changing the style of a cell's text based on the corresponding
-  record's attributes:
+   The aggregate to display at the bottom of the column. The aggregation is computed on only
+   records that are currently displayed. The aggregation operation must match the corresponding
+   field's `group_operator`.
 
-  * ``bf`` for ``font-weight: bold``
-  * ``it`` for ``font-style: italic``
-  * ``danger``, ``info``, ``muted``, ``primary``, ``success`` or ``warning`` add relative `bootstrap contextual color`_.
+   .. example::
+      .. code-block:: xml
 
-  Define a conditional display of a record in the style of a row's text based on the corresponding
-  record's attributes.
+         <field name="sent" sum="Total" />
+         <field name="clicks_ratio" avg="Average"/>
 
-  Values are Python expressions. For each record, the expression is evaluated
-  with the record's attributes as context values and if ``true``, the
-  corresponding style is applied to the row. Here are some of the other values
-  available in the context:
+   :requirement: Optional
+   :type: str
+   :default: `''`
 
-  * ``uid``: the id of the current user,
-  * ``today``: the current local date as a string of the form ``YYYY-MM-DD``,
-  * ``now``: same as ``today`` with the addition of the current time.
-    This value is formatted as ``YYYY-MM-DD hh:mm:ss``.
+.. attribute:: width
+   :noindex:
 
-  .. code-block:: xml
+   The width to apply to the field's column when there are no records in the list, as an absolute
+   width (e.g., `100px`).
 
-    <tree decoration-info="state == 'draft'"
-          decoration-danger="state == 'help_needed'"
-          decoration-bf="state == 'busy'">
-      ...
-    </tree>
+   .. important::
+      The width is set by the webclient when there are records in the list.
 
-:widget:
-  string (optional) chooses from ``handle`` or ``progressbar``
+   :requirement: Optional
+   :type: str
+   :default: `''`
 
-  alternate representations for a field's display. Possible list view
-  values are (among others):
+.. attribute:: nolabel
+   :noindex:
 
-  .. rst-class:: o-definition-list
+   Whether the field's column header should remain empty. If set, the column will not be sortable.
 
-  ``handle``
-    for ``sequence`` (or ``integer``) fields by which records are
-    sorted, instead of displaying the field's value just displays a
-    drag&drop icon to reorder records.
-  ``progressbar``
-    displays ``float`` fields as a progress bar.
+   It accepts only the value `'1'`
 
-  See more information in :ref:`reference/js/widgets`
-
-  .. code-block:: xml
-
-    <tree>
-        <field name="sequence" widget="handle"/>
-        <field name="level_progress" widget="progressbar"/>
-    </tree>
-
-:sum, avg:
-  string (optional)
-
-  displays the corresponding aggregate at the bottom of the column. The
-  aggregation is only computed on *currently displayed* records. The
-  aggregation operation must match the corresponding field's
-  ``group_operator``
-
-  .. code-block:: xml
-
-    <tree>
-      <field name="sent" sum="Total" />
-      <field name="clicks_ratio" avg="Average"/>
-    </tree>
-
-:width:
-  string/integer_ (for ``editable``) (optional)
-
-  when there is no data in the list, the width of a column can be forced
-  by setting this attribute. The value can be an absolute width (e.g.
-  '100px'). Note that when there are records in the list, we let the
-  browser automatically adapt the column's widths according to their
-  content, and this attribute is thus ignored.
-
-:nolabel:
-  ``1`` (optional)
-
-  if set to "1", the column header will remain empty. Also, the column
-  won't be sortable.
+   :requirement: Optional
+   :type: str
+   :default: `''`
 
 .. note::
-
-  if the list view is ``editable``, any field attribute from the
-  :ref:`form view <reference/view_architectures/form>` is also valid and will
-  be used when setting up the inline form view.
-
-.. note:: When a list view is grouped, numeric fields are aggregated and
-  displayed for each group. Also, if there are too many records in a group,
-  a pager will appear on the right of the group row. For this reason, it is
-  not a good practice to have a numeric field in the last column, when the
-  list view is in a situation where it can be grouped (it is however fine
-  for x2manys field in a form view: they cannot be grouped).
+   When a list view is grouped, numeric fields are aggregated and displayed for each group. Also, if
+   there are too many records in a group, a pager appears on the right of the group row. For this
+   reason, it is a bad practice to have a numeric field in the last column when the list view is in
+   a situation where it can be grouped. However, it does not pose a problem for X2many fields in a
+   form view, as they cannot be grouped.
 
 Below is a possible structure and the representation of its rendering.
 
 .. container:: row
 
-  .. code-block:: xml
-    :class: col-xxl-6
+.. admonition:: Possible structure and representation of its rendering
 
-    <tree>
-      <field name="name" string="My Custom Name"/>
-      <field name="amount" sum="Total"/>
-      <field name="company_id" invisible="1"/>
-      <field name="currency_id"/>
-      <field name="tax_id"/>
-    </tree>
+   .. list-table::
+      :class: o-showcase-table
 
-  .. image:: view_architectures/list_field.svg
-    :class: col-xxl-6
+      * - .. image:: view_architectures/list_field.svg
+             :align: center
+
+      * - .. code-block:: xml
+
+             <tree>
+                 <field name="name" string="My Custom Name"/>
+                 <field name="amount" sum="Total"/>
+                 <field name="company_id" invisible="1"/>
+                 <field name="currency_id"/>
+                 <field name="tax_id"/>
+             </tree>
 
 .. _reference/view_architectures/list/button:
 
@@ -2648,9 +2538,9 @@ Optional attributes_ can be added to the root element `kanban` to customize the 
 
   Set to ``true`` to always enable it, and to ``false`` to always disable it.
 
-.. include:: view_architectures/attribute_sample.rst
+.. include:: view_architectures/root_attribute_sample.rst
 
-.. include:: view_architectures/attribute_banner_route.rst
+.. include:: view_architectures/root_attribute_banner_route.rst
 
 .. todo:: VFE missing information on on_create attribute of kanban views.
 
@@ -2977,7 +2867,7 @@ attributes:
 ``string`` (optional)
   string displayed in the breadcrumbs when redirecting to list view.
 
-.. include:: view_architectures/attribute_sample.rst
+.. include:: view_architectures/root_attribute_sample.rst
 
 The only allowed element within a graph view is ``field`` which can have the
 following attributes:
@@ -3079,7 +2969,7 @@ following attributes:
   in the selectable measures (useful for fields that do not make sense aggregated,
   such as fields in different units, e.g. € and $).
 
-.. include:: view_architectures/attribute_sample.rst
+.. include:: view_architectures/root_attribute_sample.rst
 
 The measures are automatically generated from the model fields; only the
 aggregatable fields are used. Those measures are also alphabetically
@@ -3363,7 +3253,7 @@ attributes:
     If the value is a domain, the domain is evaluated in the context of the current row's
     record, if ``True`` the corresponding attribute is set on the cell.
 
-.. include:: view_architectures/attribute_sample.rst
+.. include:: view_architectures/root_attribute_sample.rst
 
 .. ....................................................................
 
@@ -3851,7 +3741,7 @@ take the following attributes_:
 
   will display the users avatars next to their names when grouped by user_id.
 
-.. include:: view_architectures/attribute_sample.rst
+.. include:: view_architectures/root_attribute_sample.rst
 
 .. ....................................................................
 
