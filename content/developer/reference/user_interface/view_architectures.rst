@@ -75,7 +75,7 @@ The root element of form views is `form`.
 Root attributes
 ---------------
 
-Optional attributes_ can be added to the root element `form` to customize the view.
+Optional attributes can be added to the root element `form` to customize the view.
 
 .. include:: view_architectures/root_attribute_string.rst
 
@@ -1152,7 +1152,7 @@ The root element of list views is `tree`\ [#treehistory]_.
 Root attributes
 ---------------
 
-Optional attributes_ can be added to the root element `tree` to customize the view.
+Optional attributes can be added to the root element `tree` to customize the view.
 
 .. include:: view_architectures/root_attribute_string.rst
 
@@ -1519,123 +1519,127 @@ The `button` element can have the following attributes:
 
 .. _reference/view_architectures/list/groupby:
 
-<groupby>: custom headers when grouping
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+`groupby`: define group headers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The `groupby` element is used to define group headers with :ref:`button
+<reference/view_architectures/list/button>` elements when grouping records on
+:attr:`~odoo.fields.Many2one` fields. It also accepts :ref:`field
+<reference/view_architectures/list/field>` elements, which can be used for modifiers. These fields
+thus belong on the Many2one co-model. These extra fields are fetched in batch.
 
 .. code-block:: xml
 
-  <tree>
-    ...
-    <groupby name="FIELD_NAME">
-      <BUTTONS/>
-      <FIELDS/>
-    </groupby>
-  </tree>
+   <tree>
+       ...
+       <groupby name="FIELD_NAME">
+           <BUTTONS/>
+           <FIELDS/>
+       </groupby>
+   </tree>
 
-defines custom headers (with ``buttons``) for the current view when grouping
-records on many2one fields. It is also possible to add ``field``, inside the
-``groupby`` which can be used for modifiers. These fields thus belong on the
-many2one comodel. These extra fields will be fetched in batch.
+The `groupby` element can have the following attributes:
 
-:name:
-  string (mandatory) :ref:`model <reference/orm/model>` field name
+.. attribute:: name
+   :noindex:
 
-  the name of a many2one field (on the current model). Custom header will be
-  displayed when grouping the view on this field name.
+   The name of the a :attr:`~odoo.fields.Many2one` field to use as header.
 
-  A special button (``type="edit"``) can be defined to open the many2one form view.
+   A special :ref:`button <reference/view_architectures/list/button>` element with `type="edit"` can
+   be defined to open the Many2one field's form view.
 
-Below is a possible structure and the representation of its rendering when
-group the record by the selected.
+   :requirement: Mandatory
+   :type: str
 
-.. container:: row
+.. admonition:: Possible structure and representation of its rendering
 
-  .. code-block:: xml
-    :class: col-xxl-6
+   .. list-table::
+      :class: o-showcase-table
 
-    <tree>
-      <field name="name"/>
-      <field name="amount"/>
-      <field name="currency"/>
-      <field name="tax_id"/>
+      * - .. image:: view_architectures/list_groupby.svg
+             :align: center
 
-      <groupby name="partner_id">
-        <button
-            type="edit" name="edit"
-            icon="fa-edit" title="Edit"/>
+      * - .. code-block:: xml
 
-        <field name="email"/>
-        <button
-            type="object" name="my_method"
-            string="Button1"
-            invisible="email == 'jhon@conor.com'"/>
-      </groupby>
-    </tree>
+             <tree>
+                 <field name="name"/>
+                 <field name="amount"/>
+                 <field name="currency"/>
+                 <field name="tax_id"/>
 
-  .. image:: view_architectures/list_groupby.svg
-    :class: col-xxl-6
+                 <groupby name="partner_id">
+                     <button type="edit" name="edit" icon="fa-edit" title="Edit"/>
+                     <field name="email"/>
+                     <button type="object" name="my_method" string="Button1" invisible="email == 'jhon@conor.com'"/>
+                 </groupby>
+             </tree>
 
 .. note::
-
-  The ``fields`` inside ``<groupby>`` are only used to fetches and stores the
-  value but are never displayed.
+   Fields inside the `groupby` element are used only to fetch and store the value, but they are
+   never displayed.
 
 .. _reference/view_architectures/list/header:
 
-<header>: custom buttons in control panel
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+`header`: display workflow buttons
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: xml
 
-  <tree>
-    <header>
-      <BUTTONS/>
-    </header>
-    ...
-  </tree>
+   <tree>
+       <header>
+           <BUTTONS/>
+       </header>
+       ...
+   </tree>
 
-.. rst-class:: o-definition-list
+The `header` element accepts the following children elements:
 
-``<button>``
-  Defines custom buttons similar to :ref:`list view buttons <reference/view_architectures/list/button>` in the control panel
-  that perform an action/call a model's method. The buttons which accepts an extra attribute when placed in a `header`:
+.. attribute:: button
+   :noindex:
 
-  :display:
-    string chooses from ``display`` or ``always`` (default: ``display``)
+   The `button` element allows defining buttons in the control panel. It is the same element as
+   :ref:`button <reference/view_architectures/list/button>` elements in list views, but it accepts
+   one more attribute when placed inside a `header` element:
 
-    By default, those buttons are only displayed when some records are
-    selected, and they apply on the selection. When the attribute ``display``
-    is set to ``always``, the button is available all the time, even if there's
-    no selection.
+   .. attribute:: display
+      :noindex:
 
-  .. code-block:: xml
+      Make the button available at all time, without having to select records.
 
-    <header>
-        <button name="toDoAlways" type="object" string="Always displayed" display="always"/>
-        <button name="toDoSelection" type="object" string="Displayed if selection"/>
-    </header>
+      It accepts only the value `always`.
 
-Below is a possible structure and the representation of its rendering.
+      .. example::
 
-.. container:: row
+         .. code-block:: xml
 
-  .. code-block:: xml
-    :class: col-xxl-6
+            <header>
+                <button name="toDoAlways" type="object" string="Always displayed" display="always"/>
+                <button name="toDoSelection" type="object" string="Displayed if selection"/>
+            </header>
 
-    <tree>
-      <header>
-        <button type="object" name="to_draft"
-            string="Button1"
-            invisible="context.get('hide_button')"/>
-      </header>
-      <field name="name"/>
-      <field name="amount"/>
-      <field name="currency"/>
-      <field name="tax_id"/>
-    </tree>
+      :requirement: Optional
+      :type: str
+      :default: `''`
 
-  .. image:: view_architectures/list_header.svg
-    :class: col-xxl-6
+.. admonition:: Possible structure and representation of its rendering
+
+   .. list-table::
+      :class: o-showcase-table
+
+      * - .. image:: view_architectures/list_header.svg
+             :align: center
+
+      * - .. code-block:: xml
+
+             <tree>
+                 <header>
+                     <button type="object" name="to_draft" string="Button1" invisible="context.get('hide_button')"/>
+                 </header>
+                 <field name="name"/>
+                 <field name="amount"/>
+                 <field name="currency"/>
+                 <field name="tax_id"/>
+             </tree>
 
 .. _reference/view_architectures/list/control:
 
@@ -1716,7 +1720,7 @@ Although they apply to a specific model, they are used to filter another view's 
 aggregated views; e.g., :ref:`reference/view_architectures/list`, and
 :ref:`reference/view_architectures/graph`).
 
-The root element of search views is `search`. It takes no attributes_.
+The root element of search views is `search`. It takes no attributes.
 
 .. admonition:: Possible structure and representation of its rendering
 
@@ -2258,7 +2262,7 @@ The root element of Kanban views is `kanban`.
 Root attributes
 ---------------
 
-Optional attributes_ can be added to the root element `kanban` to customize the view.
+Optional attributes can be added to the root element `kanban` to customize the view.
 
 :string:
   string (default: ``''``)
@@ -2821,7 +2825,7 @@ calendar.
    order to set the initial focus of the calendar on the period (see `mode`) around
    this date (the context key to use being `initial_date`)
 
-Their root element is ``<calendar>``. Available attributes_ on the
+Their root element is ``<calendar>``. Available attributes on the
 calendar view are:
 
 :string:
@@ -3344,7 +3348,7 @@ Gantt
 Gantt views appropriately display Gantt charts (for scheduling).
 
 The root element of gantt views is ``<gantt/>``, it has no children but can
-take the following attributes_:
+take the following attributes:
 
 :string:
   string (default: ``''``)
@@ -3624,7 +3628,6 @@ For example here is a map:
 .. ....................................................................
 
 .. _`accesskey`: https://www.w3.org/TR/html5/editing.html#the-accesskey-attribute
-.. _`attributes`: https://en.wikipedia.org/wiki/HTML_attribute
 .. _`bootstrap contextual color`: https://getbootstrap.com/docs/3.3/components/#available-variations
 .. _`Comma-separated values`: https://en.wikipedia.org/wiki/Comma-separated_values
 .. _`floats`: https://developer.mozilla.org/en-US/docs/Web/CSS/float
