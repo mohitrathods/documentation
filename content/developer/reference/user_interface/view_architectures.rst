@@ -1643,70 +1643,73 @@ The `header` element accepts the following children elements:
 
 .. _reference/view_architectures/list/control:
 
-<control> & <create>: customize "add a line"
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+`control` & `create`: add inline create buttons
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The `control` element defines a control row that accepts create buttons. Each create button is
+defined through a `create` element.
 
 .. code-block:: xml
 
-  <tree>
-    <control>
-      <create string="LABEL"/>
-      <BUTTONS/>
-    </control>
-    ...
-  </tree>
-
-defines custom controls for the current view. Does not support any attribute,
-but can have children ``<create>``.
-
-``<create>`` adds a button to create a new element on the current list.
-It can have the following attributes:
-
-:string:
-  string (mandatory)
-
-  The text displayed on the button.
-
-:context:
-  :ref:`python expression <reference/view_architectures/python_expression>` that evaluates to a dict (default: ``{}``)
-
-  This context will be merged into the existing context
-  when retrieving the default value of the new record.
-
-  For example it can be used to override default values.
-
-Below is a possible structure and the representation of its rendering.
-
-.. container:: row
-
-  .. code-block:: xml
-    :class: col-xxl-6
-
-    <tree>
-      <field name="name"/>
-      <field name="amount"/>
-      <field name="currency"/>
-      <field name="tax_id"/>
+   <tree>
       <control>
-        <create string="Add a item"/>
-        <create string="Add a section"
-            context="{'default_type': 'section'}"/>
-        <create string="Add a note"
-            context="{'default_type': 'note'}"/>
-      </control>
-    </tree>
+          <create string="LABEL"/>
+          <BUTTONS/>
+       </control>
+       ...
+   </tree>
 
-  .. image:: view_architectures/list_control.svg
-    :class: col-xxl-6
+The `control` element takes no attributes.
 
-.. note:: ``<control>`` makes sense if the parent ``tree`` view is inside a
-  :class:`~odoo.fields.One2many` :ref:`relational field <studio/fields/relational-fields>`.
+The `create` element can have the following attributes:
 
-  If any ``<create>`` is defined as children, it will overwrite the default
-  "**add a line**" button.
+.. attribute:: string
+   :noindex:
 
-.. [#treehistory] for historical reasons, it has its origin in tree-type views
-                later repurposed to a more table/list-type display
+   The button's text.
+
+   :requirement: Mandatory
+   :type: str
+
+.. attribute:: context
+   :noindex:
+
+   The context that is merged into the view's context when performing the button's call, as a Python
+   expression that evaluates to a dict.
+
+   :requirement: Optional
+   :type: :ref:`Python expression <reference/view_architectures/python_expression>`
+   :default: `{}`
+
+.. admonition:: Possible structure and representation of its rendering
+
+   .. list-table::
+      :class: o-showcase-table
+
+      * - .. image:: view_architectures/list_control.svg
+             :align: center
+
+      * - .. code-block:: xml
+
+             <tree>
+                 <field name="name"/>
+                 <field name="amount"/>
+                 <field name="currency"/>
+                 <field name="tax_id"/>
+                 <control>
+                     <create string="Add a item"/>
+                     <create string="Add a section" context="{'default_type': 'section'}"/>
+                     <create string="Add a note" context="{'default_type': 'note'}"/>
+                 </control>
+             </tree>
+
+.. note::
+   Using the `control` element makes sense only if the list view is inside a
+   :class:`~odoo.fields.One2many` field. If any `create` element is defined, it overwrites the
+   default :guilabel:`add a line` button.
+
+.. [#treehistory] For historical reasons, it has its origin in tree-type views later repurposed to a
+   more table/list-type display
 
 .. ....................................................................
 
