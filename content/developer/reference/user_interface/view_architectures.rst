@@ -1597,8 +1597,8 @@ The `header` element accepts the following children elements:
 .. attribute:: button
    :noindex:
 
-   The `button` element allows defining buttons in the control panel. It is the same element as
-   :ref:`button <reference/view_architectures/list/button>` elements in list views, but it accepts
+   The `button` element allows defining buttons in the control panel. It is the same element as the
+   :ref:`button element in list views <reference/view_architectures/list/button>`, but it accepts
    one more attribute when placed inside a `header` element:
 
    .. attribute:: display
