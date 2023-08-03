@@ -405,8 +405,6 @@ The `button` element can have the following attributes:
       Call a method on the view's model. The button's `name` is the method that is called with the
       current record ID and the current `context`.
 
-      The web client also supports a `@args`, which allows providing additional arguments as JSON.
-
    .. attribute:: action
       :noindex:
 
@@ -1572,108 +1570,140 @@ The `field` element can have the following attributes:
 
 .. _reference/view_architectures/list/button:
 
-<button>: display button to call action
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+`button`: display action buttons
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: xml
 
-  <tree>
-    <button type="object" name="ACTION" string="LABEL"/>
-    <button type="object" name="ACTION" icon="FONT_AWESOME"/>
-  </tree>
+   <tree>
+       <button type="object" name="ACTION" string="LABEL"/>
+       <button type="object" name="ACTION" icon="FONT_AWESOME"/>
+   </tree>
 
-``<button>`` can have the following attributes:
+The `button` element can have the following attributes:
 
-:icon:
-  string (optional)
+.. attribute:: type
+   :noindex:
 
-  icon to use to display the button (:doc:`UI icons <icons>`)
+   A `str` that chooses from ``object`` or ``action`` (mandatory).
+   It indicates how clicking it affects Odoo:
 
-  .. code-block:: xml
+   .. rst-class:: o-definition-list
 
-    <button type="object" name="remove" icon="fa-trash"/>
+   ``object``
+      Call a method on the list's model. The button's ``name`` is the method, which is called with the current row's record id and the current context.
 
-:string:
-  string (default: ``''``)
+   ``action``
+      Load and execute an ``ir.actions``, the button's ``name`` is the database id of the action. The context is expanded with the list's model (as ``active_model``), the current row's record (``active_id``), and all the records currently loaded in the list (``active_ids``, may be just a subset of the database records matching the current search).
 
-  * if there is no ``icon``, the button's text
-  * if there is an ``icon``, ``alt`` text for the icon
-
-  .. code-block:: xml
-
-      <button type="object" name="action_create_new" string="Create document"/>
-
-:help:
-  string (optional)
-
-  add a tooltip message when hover with the mouse cursor
-
-  .. code-block:: xml
-
-    <button type="object" name="remove" icon="fa-trash" help="Revoke"/>
-
-:context:
-  `python expression`_ that evaluates to a dict (default: ``{}``)
-
-  merged into the view's context when performing the button's Odoo call
-
-  .. code-block:: xml
-
-    <button name="button_confirm" type="object" context="{'BUSINESS_KEY': ANY}" string="LABEL"/>
-
-:type:
-  string chooses from ``object`` or ``action`` (mandatory)
-
-  type of button, indicates how it clicking it affects Odoo:
-
-  .. rst-class:: o-definition-list
-
-  ``object``
-      call a method on the list's model. The button's ``name`` is the
-      method, which is called with the current row's record id and the
-      current context.
-
-      .. web client also supports a @args, which allows providing
-          additional arguments as JSON. Should that be documented? Does
-          not seem to be used anywhere
-
-  ``action``
-      load an execute an ``ir.actions``, the button's ``name`` is the
-      database id of the action. The context is expanded with the list's
-      model (as ``active_model``), the current row's record
-      (``active_id``) and all the records currently loaded in the list
-      (``active_ids``, may be just a subset of the database records
-      matching the current search)
-
-  .. code-block:: xml
+   .. code-block:: xml
 
       <button type="object" name="action_create_new" string="Create document"/>
       <button type="action" name="%(addon.action_create_view)d" string="Create and Edit"/>
 
-:name:
-  string (optional)
+   :requirement: Mandatory
+   :type: str
 
-  see ``type``
+.. attribute:: name
+   :noindex:
 
-:groups:
-  `Comma-separated values`_ (optional) whose choices are the :class:`~odoo.addons.base.models.res_users.Groups` reference
+   A `str` (optional) - see ``type``.
 
-  same as for :ref:`form field <reference/view_architectures/form/field>` component.
+   :requirement: Optional
+   :type: str
 
-:invisible:
-  :ref:`python expression <reference/view_architectures/python_expression>` that evaluates to a bool (default: ``False``)
+.. attribute:: string
+   :noindex:
 
-  same as for :ref:`form field <reference/view_architectures/form/field>` component.
+   A `str` (default: ``''``) that serves as follows:
 
-:class:
-  string (optional) `HTML class`_
+   * If there is no ``icon``, it represents the button's text.
+   * If there is an ``icon``, it provides the "alt" text for the icon.
 
-  same as for :ref:`form field <reference/view_architectures/form/field>` component.
+   .. code-block:: xml
 
-:column_invisible:
-  :ref:`python expression <reference/view_architectures/python_expression>` that evaluates to a bool (default: ``False``)
+      <button type="object" name="action_create_new" string="Create document"/>
 
-  same as for :ref:`list field <reference/view_architectures/list/field>` component.
+   :requirement: Mandatory
+   :type: str
+
+.. attribute:: icon
+   :noindex:
+
+   A `str` (optional) that specifies the icon to use to display the button (:doc:`UI icons <icons>`).
+
+   .. code-block:: xml
+
+      <button type="object" name="remove" icon="fa-trash"/>
+
+   :requirement: Optional
+   :type: str
+
+.. attribute:: help
+   :noindex:
+
+   A `str` (optional) that adds a tooltip message when hovered with the mouse cursor.
+
+   .. code-block:: xml
+
+      <button type="object" name="remove" icon="fa-trash" help="Revoke"/>
+
+   :requirement: Optional
+   :type: str
+
+.. attribute:: context
+   :noindex:
+
+   A `python expression`_ (default: ``{}``) that evaluates to a dict.
+   The expression is merged into the view's context when performing the button's Odoo call.
+
+   .. code-block:: xml
+
+      <button name="button_confirm" type="object" context="{'BUSINESS_KEY': ANY}" string="LABEL"/>
+
+   :requirement: Optional
+   :type: `python expression`
+
+.. attribute:: groups
+   :noindex:
+
+   A `Comma-separated values`_ (optional) whose choices are the :class:`~odoo.addons.base.models.res_users.Groups` reference.
+   Lists the groups which should be able to see the button (removed server-side if the user's groups do not match).
+
+   .. code-block:: xml
+
+      <button name="button_confirm" type="object" groups="base.group_user,base.group_portal" string="Confirm"/>
+
+   :requirement: Optional
+   :type: str
+
+.. attribute:: invisible
+   :noindex:
+
+   A :ref:`python expression <reference/view_architectures/python_expression>` that evaluates to a bool (default: ``False``).
+   Same as for the :ref:`form field <reference/view_architectures/form/field>` component.
+
+   :requirement: Optional
+   :type: str
+   :default: ``False``
+
+.. attribute:: class
+   :noindex:
+
+   A `str` (optional) that specifies the `HTML class`_ of the button.
+
+   :requirement: Optional
+   :type: str
+
+.. attribute:: column_invisible
+   :noindex:
+
+   A :ref:`python expression <reference/view_architectures/python_expression>` that evaluates to a bool (default: ``False``).
+   Same as for the :ref:`list field <reference/view_architectures/list/field>` component.
+
+   :requirement: Optional
+   :type: str
+   :default: ``False``
 
 Below is a possible structure and the representation of its rendering.
 
