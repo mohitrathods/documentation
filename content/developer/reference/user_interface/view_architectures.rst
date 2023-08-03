@@ -394,99 +394,17 @@ The `label` element can have the following attributes:
 
 The `button` element can have the following attributes:
 
-.. attribute:: type
-   :noindex:
+.. include:: view_architectures/button_attribute_type.rst
 
-   The type of the button indicating how it behaves. It can have two different values:
+.. include:: view_architectures/button_attribute_name.rst
 
-   .. attribute:: object
-      :noindex:
+.. include:: view_architectures/button_attribute_string.rst
 
-      Call a method on the view's model. The button's `name` is the method that is called with the
-      current record ID and the current `context`.
+.. include:: view_architectures/button_attribute_icon.rst
 
-   .. attribute:: action
-      :noindex:
+.. include:: view_architectures/button_attribute_help.rst
 
-      Load and execute an `ir.actions` action record. The button's `name` is the XMLID of the
-      action. The `context` is extended with the view's model (as `active_model`) and with the
-      current record (as `active_id`).
-
-   .. example::
-      .. code-block:: xml
-
-         <button type="object" name="action_create_new" string="Create document"/>
-         <button type="action" name="%(addon.action_create_view)d" string="Create and Edit"/>
-
-   :requirement: Mandatory
-   :type: str
-
-.. attribute:: name
-   :noindex:
-
-   The method to call if the `type` is `object`, or the XMLID of the action to load if the `type` is
-   `action`.
-
-   :requirement: Optional
-   :type: str
-   :default: `''`
-
-.. attribute:: string
-   :noindex:
-
-   The button's text if there is no `icon`, the `alt` text for the icon otherwise.
-
-   .. example::
-      .. code-block:: xml
-
-         <button type="object" name="action_create_new" string="Create document"/>
-
-   :requirement: Optional
-   :type: str
-   :default: `''`
-
-.. attribute:: icon
-   :noindex:
-
-   The icon to use to display the button. See :doc:`icons` for the reference list.
-
-   .. example::
-      .. code-block:: xml
-
-         <button type="object" name="remove" icon="fa-trash"/>
-
-   :requirement: Optional
-   :type: str
-   :default: `''`
-
-.. attribute:: help
-   :noindex:
-
-   The tooltip message shown when hovering with the mouse cursor.
-
-   .. example::
-      .. code-block:: xml
-
-         <button type="object" name="remove" icon="fa-trash" help="Revoke"/>
-
-   :requirement: Optional
-   :type: str
-   :default: `''`
-
-.. attribute:: context
-   :noindex:
-
-   The context that is merged into the view's context when performing the button's call, as a Python
-   expression that evaluates to a dict.
-
-   .. example::
-      .. code-block:: xml
-
-         <button name="button_confirm" type="object" context="{'BUSINESS_KEY': ANY}" string="LABEL"/>
-
-   :requirement: Optional
-   :type: :ref:`Python expression <reference/view_architectures/python_expression>`
-   :default: `{}`
+.. include:: view_architectures/button_attribute_context.rst
 
 .. include:: view_architectures/generic_attribute_groups.rst
 
@@ -1455,29 +1373,7 @@ The `field` element can have the following attributes:
 
 .. include:: view_architectures/generic_attribute_invisible.rst
 
-.. attribute:: column_invisible
-   :noindex:
-
-   Whether the field should be fetched, but not displayed, as a Python expression that evaluates to
-   a bool.
-
-   It is necessary for fields that should not be displayed, but that are used, for example by
-   `@colors`, or an expression.
-
-   Unlike `invisible`, the entire column is invisible and is evaluated without the subtree values.
-
-   .. example::
-      .. code-block:: xml
-
-         <field name="product_is_late" column_invisible="parent.has_late_products == False"/>
-
-   .. note::
-      Only in case of list sub-views (One2many/Many2many display in a form view).
-
-   :requirement: Optional
-   :type: :ref:`Python expression <reference/view_architectures/python_expression>`
-   :default: `False`
-   :scope: X2many lists in form views
+.. include:: view_architectures/generic_attribute_column_invisible.rst
 
 .. include:: view_architectures/generic_attribute_groups.rst
 
@@ -1582,153 +1478,44 @@ The `field` element can have the following attributes:
 
 The `button` element can have the following attributes:
 
-.. attribute:: type
-   :noindex:
+.. include:: view_architectures/button_attribute_type.rst
 
-   A `str` that chooses from ``object`` or ``action`` (mandatory).
-   It indicates how clicking it affects Odoo:
+.. include:: view_architectures/button_attribute_name.rst
 
-   .. rst-class:: o-definition-list
+.. include:: view_architectures/button_attribute_string.rst
 
-   ``object``
-      Call a method on the list's model. The button's ``name`` is the method, which is called with the current row's record id and the current context.
+.. include:: view_architectures/button_attribute_icon.rst
 
-   ``action``
-      Load and execute an ``ir.actions``, the button's ``name`` is the database id of the action. The context is expanded with the list's model (as ``active_model``), the current row's record (``active_id``), and all the records currently loaded in the list (``active_ids``, may be just a subset of the database records matching the current search).
+.. include:: view_architectures/button_attribute_help.rst
 
-   .. code-block:: xml
+.. include:: view_architectures/button_attribute_context.rst
 
-      <button type="object" name="action_create_new" string="Create document"/>
-      <button type="action" name="%(addon.action_create_view)d" string="Create and Edit"/>
+.. include:: view_architectures/generic_attribute_groups.rst
 
-   :requirement: Mandatory
-   :type: str
+.. include:: view_architectures/generic_attribute_invisible.rst
 
-.. attribute:: name
-   :noindex:
+.. include:: view_architectures/generic_attribute_column_invisible.rst
 
-   A `str` (optional) - see ``type``.
+.. include:: view_architectures/generic_attribute_class.rst
 
-   :requirement: Optional
-   :type: str
+.. admonition:: Possible structure and representation of its rendering
 
-.. attribute:: string
-   :noindex:
+   .. list-table::
+      :class: o-showcase-table
 
-   A `str` (default: ``''``) that serves as follows:
+      * - .. image:: view_architectures/list_button.svg
+             :align: center
 
-   * If there is no ``icon``, it represents the button's text.
-   * If there is an ``icon``, it provides the "alt" text for the icon.
+      * - .. code-block:: xml
 
-   .. code-block:: xml
-
-      <button type="object" name="action_create_new" string="Create document"/>
-
-   :requirement: Mandatory
-   :type: str
-
-.. attribute:: icon
-   :noindex:
-
-   A `str` (optional) that specifies the icon to use to display the button (:doc:`UI icons <icons>`).
-
-   .. code-block:: xml
-
-      <button type="object" name="remove" icon="fa-trash"/>
-
-   :requirement: Optional
-   :type: str
-
-.. attribute:: help
-   :noindex:
-
-   A `str` (optional) that adds a tooltip message when hovered with the mouse cursor.
-
-   .. code-block:: xml
-
-      <button type="object" name="remove" icon="fa-trash" help="Revoke"/>
-
-   :requirement: Optional
-   :type: str
-
-.. attribute:: context
-   :noindex:
-
-   A `python expression`_ (default: ``{}``) that evaluates to a dict.
-   The expression is merged into the view's context when performing the button's Odoo call.
-
-   .. code-block:: xml
-
-      <button name="button_confirm" type="object" context="{'BUSINESS_KEY': ANY}" string="LABEL"/>
-
-   :requirement: Optional
-   :type: `python expression`
-
-.. attribute:: groups
-   :noindex:
-
-   A `Comma-separated values`_ (optional) whose choices are the :class:`~odoo.addons.base.models.res_users.Groups` reference.
-   Lists the groups which should be able to see the button (removed server-side if the user's groups do not match).
-
-   .. code-block:: xml
-
-      <button name="button_confirm" type="object" groups="base.group_user,base.group_portal" string="Confirm"/>
-
-   :requirement: Optional
-   :type: str
-
-.. attribute:: invisible
-   :noindex:
-
-   A :ref:`python expression <reference/view_architectures/python_expression>` that evaluates to a bool (default: ``False``).
-   Same as for the :ref:`form field <reference/view_architectures/form/field>` component.
-
-   :requirement: Optional
-   :type: str
-   :default: ``False``
-
-.. attribute:: class
-   :noindex:
-
-   A `str` (optional) that specifies the `HTML class`_ of the button.
-
-   :requirement: Optional
-   :type: str
-
-.. attribute:: column_invisible
-   :noindex:
-
-   A :ref:`python expression <reference/view_architectures/python_expression>` that evaluates to a bool (default: ``False``).
-   Same as for the :ref:`list field <reference/view_architectures/list/field>` component.
-
-   :requirement: Optional
-   :type: str
-   :default: ``False``
-
-Below is a possible structure and the representation of its rendering.
-
-.. container:: row
-
-  .. code-block:: xml
-    :class: col-xxl-6
-
-    <tree>
-      <field name="name"/>
-      <button
-          type="edit" name="edit"
-          icon="fa-edit" title="Edit"/>
-      <button
-          type="object" name="my_method"
-          string="Button1"
-          column_invisible="context.get('hide_button')"
-          invisible="amount &gt; 3"/>
-      <field name="amount"/>
-      <field name="currency_id"/>
-      <field name="tax_id"/>
-    </tree>
-
-  .. image:: view_architectures/list_button.svg
-    :class: col-xxl-6
+             <tree>
+                 <field name="name"/>
+                 <button type="edit" name="edit" icon="fa-edit" title="Edit"/>
+                 <button type="object" name="my_method" string="Button1" column_invisible="context.get('hide_button')" invisible="amount &gt; 3"/>
+                 <field name="amount"/>
+                 <field name="currency_id"/>
+                 <field name="tax_id"/>
+             </tree>
 
 .. _reference/view_architectures/list/groupby:
 
@@ -3838,7 +3625,6 @@ For example here is a map:
 
 .. _`accesskey`: https://www.w3.org/TR/html5/editing.html#the-accesskey-attribute
 .. _`attributes`: https://en.wikipedia.org/wiki/HTML_attribute
-.. _`Bootstrap`: https://getbootstrap.com/
 .. _`bootstrap contextual color`: https://getbootstrap.com/docs/3.3/components/#available-variations
 .. _`Comma-separated values`: https://en.wikipedia.org/wiki/Comma-separated_values
 .. _`floats`: https://developer.mozilla.org/en-US/docs/Web/CSS/float
