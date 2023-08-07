@@ -16,9 +16,8 @@ FORBIDDEN_HEADING_DELIMITER_RE = re.compile(
     '^(' + '|'.join(rf'\{char}+' for char in FORBIDDEN_HEADING_CHARS) + ')\n$'
 )
 GIT_CONFLICT_MARKERS = ['<' * 7, '>' * 7]
-ALLOWED_EARLY_BREAK_CHARS_RE = re.compile(
-    r'^\s*(\.\. |:\S+:\s+)', re.IGNORECASE
-) # Matches lines containing directives ('.. directive::' or ':directive:'), allowed to break early.
+ALLOWED_EARLY_BREAK_RE = re.compile(r'^\s*(\.\. |:\S+:\s+)$', re.IGNORECASE)  # Contains markup.
+
 
 @sphinxlint.checker('.rst')
 def check_heading_delimiters_characters(file, lines, options=None):
@@ -105,51 +104,51 @@ def check_heading_spacing(file, lines, options=None):
                 yield heading_lno + 1, "the heading should be followed by a blank line"
 
 
+@sphinxlint.checker('.rst', enabled=False)
+def check_early_line_breaks(file, lines, options=None):
+    """ Checks that no line breaks early, i.e., before using as much of the max length as possible.
+
+    Note: `make review` only
+    """
+
+    def is_valid_line(line_, forbidden_starting_chars_):
+        """ Allowed to break early - handle tables and bullets """
+        return not ALLOWED_EARLY_BREAK_RE.search(line_) \
+            and not HEADING_DELIMITER_RE.search(line_) \
+            and not line_.startswith('\n') \
+            and not line_.lstrip().startswith(forbidden_starting_chars_) \
+            and len(line_) <= options.max_line_length
+
+    def get_next_line_first_word(next_line_):
+        """ Return the first word of the next line """
+        if next_line_.startswith(' '):
+            next_line_dict = {
+                '*': lambda x: x.split('* ', 1)[0],
+                '-': lambda x: x.split('- ', 1)[0],
+                '#.': lambda x: x.split('#. ', 1)[0],
+                'default': lambda x: x.split(' ', 1)[0]
+            }
+            return next_line_dict.get(next_line_.lstrip()[:2], next_line_dict["default"])(
+                next_line_.lstrip()
+            )
+        else:
+            return next_line_.split(' ', 1)[0]
+
+    for lno, line in enumerate(lines):
+        if lno + 1 < len(lines):
+            next_line = lines[lno + 1]
+            if (is_valid_line(line, ('+', '|'))
+                and is_valid_line(next_line, ('+', '|', '- ', '* ', '#. '))
+            ):
+                current_line_remaining_space = options.max_line_length - len(line)
+                next_line_first_word = get_next_line_first_word(next_line)
+                if current_line_remaining_space > len(next_line_first_word):
+                    yield lno + 1, f"consider moving \"{next_line_first_word}\" to line {lno}"
+
+
 @sphinxlint.checker('.rst', '.py', '.js', '.xml', '.css', '.sass', '.less', '.po', '.pot')
 def check_git_conflict_markers(file, lines, options=None):
     """ Check that there are no conflict markers. """
     for lno, line in enumerate(lines):
         if any(marker in line for marker in GIT_CONFLICT_MARKERS):
             yield lno + 1, "the git conflict should be resolved"
-
-
-@sphinxlint.checker('.rst', enabled=False, rst_only=True)
-def check_early_line_breaks(file, lines, options=None):
-    """ Optional - Checks that all lines dont break early per options.max_line_length param """
-    def is_valid_line(line, type):
-        """ Allowed to break early - handle tables and bullets """
-        if type == 1:
-            return not ALLOWED_EARLY_BREAK_CHARS_RE.search(line) \
-                and not HEADING_DELIMITER_RE.search(line) \
-                and not line.startswith("\n") \
-                and not line.lstrip().startswith(("+", "|", "- ", "* ", "#. ")) \
-                and len(line) <= options.max_line_length
-        if type == 0:
-            return not ALLOWED_EARLY_BREAK_CHARS_RE.search(line) \
-                and not HEADING_DELIMITER_RE.search(line) \
-                and not line.startswith("\n") \
-                and not line.lstrip().startswith(("+", "|")) \
-                and len(line) <= options.max_line_length
-    def get_next_line_first_word(next_line):
-        """ Return the first word of the next line """
-        if next_line.startswith(" "):
-            next_line_dict = {
-                "*": lambda x: x.split("* ", 1)[0],
-                "-": lambda x: x.split("- ", 1)[0],
-                "#.": lambda x: x.split("#. ", 1)[0],
-                "default": lambda x: x.split(" ", 1)[0]
-            }
-            return next_line_dict.get(
-                next_line.lstrip()[:2], next_line_dict["default"]
-            )(next_line.lstrip())
-        else:
-            return next_line.split(" ", 1)[0]
-
-    for lno, current_line in enumerate(lines):
-        if lno + 1 < len(lines):
-            next_line = lines[lno + 1]
-            if is_valid_line(current_line, 0) and is_valid_line(next_line, 1):
-                current_line_remaining_space = options.max_line_length - len(current_line)
-                next_line_first_word = get_next_line_first_word(next_line)
-                if current_line_remaining_space > len(next_line_first_word):
-                    yield lno + 1, f"Consider moving \"{next_line_first_word}\" to line {lno + 1}."
