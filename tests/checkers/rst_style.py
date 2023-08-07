@@ -16,7 +16,7 @@ FORBIDDEN_HEADING_DELIMITER_RE = re.compile(
     '^(' + '|'.join(rf'\{char}+' for char in FORBIDDEN_HEADING_CHARS) + ')\n$'
 )
 GIT_CONFLICT_MARKERS = ['<' * 7, '>' * 7]
-ALLOWED_EARLY_BREAK_RE = re.compile(r'^\s*(\.\. |:\S+:\s+)$', re.IGNORECASE)  # Contains markup.
+ALLOWED_EARLY_BREAK_RE = re.compile(r'^\s*(\.\. |:\S+:\s+)', re.IGNORECASE)  # Contains markup.
 
 
 @sphinxlint.checker('.rst')
@@ -143,7 +143,7 @@ def check_early_line_breaks(file, lines, options=None):
                 current_line_remaining_space = options.max_line_length - len(line)
                 next_line_first_word = get_next_line_first_word(next_line)
                 if current_line_remaining_space > len(next_line_first_word):
-                    yield lno + 1, f"consider moving \"{next_line_first_word}\" to line {lno}"
+                    yield lno + 1, f"consider moving \"{next_line_first_word}\" to line {lno + 1}"
 
 
 @sphinxlint.checker('.rst', '.py', '.js', '.xml', '.css', '.sass', '.less', '.po', '.pot')
