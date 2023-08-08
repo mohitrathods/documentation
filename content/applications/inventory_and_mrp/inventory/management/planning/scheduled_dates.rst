@@ -2,14 +2,14 @@
 Scheduling delivery dates
 =========================
 
-Giving accurate forecasted dates of delivery is vital for fulfilling customer expectations. Odoo
-offers comprehensive lead time configuration, allowing coordination and planning of manufacturing
+Accurately forecasting delivery dates is vital for fulfilling customer expectations. In Odoo, the Inventory app
+allows for comprehensive lead time configuration, allowing coordination and planning of manufacturing
 orders, deliveries, and receptions.
 
 Types of lead times
 ===================
 
-Lead times are interconnected and impact various stages of the order fulfillment process. Here's a
+Different lead times for different operations can impact various stages of the order fulfillment process. Here's a
 summary of the types of lead times in Odoo:
 
 .. image:: scheduled_dates/all-lead-times.png
@@ -33,13 +33,13 @@ summary of the types of lead times in Odoo:
 
 -  **Purchase security lead time**: advance the order deadline on a :abbr:`PO (Purchase Order)` by a
    specified number of days. This proactive approach of placing orders earlier mitigates the risk of
-   vendor or shipping delays. Thus, for products that are replenish to order, the need appears on
-   the *Replenishment report* earlier by the specified number of days. :ref:`[Skip to section]
+   vendor or shipping delays. Thus, for products that are set to replenish to order, the need appears on
+   the *Replenishment report* earlier, according to the specified number of days. :ref:`[Skip to section]
    <inventory/management/planning/scheduled/purchase-security-LT>`
 
--  **Manufacturing lead time**: the number of days to complete manufacturing order from the date of
-   confirmation. The lead time includes weekends, and is used to forecast an approximate date of
-   production of a finished good.
+-  **Manufacturing lead time**: the number of days to complete a manufacturing order (MO) from the date of
+   confirmation. The lead time includes weekends (non-working hours in Odoo), and is used to forecast an approximate production date for
+   a finished good.
 
 -  **Manufacturing security lead time**: moves forward the scheduled date of the :abbr:`MO
    (Manufacturing Order)` by a specified number of days. When used in conjunction with
@@ -49,14 +49,14 @@ summary of the types of lead times in Odoo:
 
 .. _inventory/management/planning/scheduled/customer-LT:
 
-Sales - lead times
+Sales lead times
 ==================
 
-Configure customer lead times and sales security lead times to automatically compute an *expected
-delivery date* on a sales order (SO). The expected delivery date ensures a realistic setting of
-*delivery dates* for shipment from the warehouse. Odoo issues a warning message if the set delivery
-date is earlier than the expected date, as it may not be feasible to fulfill the order by that time,
-impacting other warehouse operations.
+Customer lead times and sales security lead times can be configured to automatically compute an *expected
+delivery date* on a :abbr:`SO (Sales Order)`. The expected delivery date ensures a realistic setting of
+*delivery dates* for shipments from the warehouse.
+
+Odoo issues a warning message if the set delivery date is earlier than the expected date, as it may not be feasible to fulfill the order by that time, which would impact other warehouse operations.
 
 .. example::
    A :abbr:`SO (Sales Order)` containing a `Coconut-scented candle` is confirmed on July 11. The
@@ -67,21 +67,19 @@ impacting other warehouse operations.
       :align: center
       :alt: Set *Delivery Date* in a sales order. Enables delivery lead times feature.
 
-View the following sections below to automatically compute expected delivery dates.
+The following sections demonstrate how to automatically compute expected delivery dates.
 
 Customer lead time
 ------------------
 
-Set the customer lead time on each the product form, by navigating to the product itself from
+Set the customer lead time on each product form by navigating to the products page. To do so, go to
 :menuselection:`Sales app --> Products --> Products`. Select the desired product and switch to the
 :guilabel:`Inventory` tab. Under the :guilabel:`Customer Lead Time` field, fill in the number of
-calendar days required to fulfill the delivery order from start to finish. Thus, customer lead time
-has another name: delivery lead time.
+calendar days required to fulfill the delivery order from start to finish.
 
 .. example::
    Set a 14-day customer lead time for the `Coconut-scented candle` by navigating to its product
-   form. Then, in the :guilabel:`Inventory` tab, type `14.00` days into the field,
-   :guilabel:`Customer Lead Time`.
+   form. Then, in the :guilabel:`Inventory` tab, type `14.00` days into the :guilabel:`Customer Lead Time` field.
 
    .. image:: scheduled_dates/customer-LT.png
       :align: center
@@ -94,13 +92,12 @@ Sales security lead time
 
 *Sales security lead time* is set globally for the business in :menuselection:`Inventory app -->
 Configuration --> Settings`. On the configuration page, under the :guilabel:`Advanced Scheduling`
-heading, locate the box for :guilabel:`Security Lead Time for Sales` to enable the feature by
-checking the box. Next, enter the desired number of calendar days. This security lead time is a
+heading, locate the box for :guilabel:`Security Lead Time for Sales`, and click the checkbox to enable the feature. Next, enter the desired number of calendar days. This security lead time is a
 buffer notifying the team to prepare for outgoing shipments earlier than the scheduled date.
 
 .. example::
    Setting the :guilabel:`Security Lead Time for Sales` to `1.00` day pushes forward the
-   :guilabel:`Scheduled Date` of a :abbr:`DO (Delivery Order)` by a day. In that case, if a product
+   :guilabel:`Scheduled Date` of a delivery order (DO) by a day. In that case, if a product
    is initially scheduled for delivery on April 6th, but with a one-day security lead time, the new
    scheduled date for the delivery order would be April 5th.
 
@@ -111,8 +108,8 @@ buffer notifying the team to prepare for outgoing shipments earlier than the sch
 Deliver several products
 ------------------------
 
-Configure order fulfillment for multiple products with different lead directly on the quotation
-itself. In the :guilabel:`Other Info` tab, set the :guilabel:`Shipping Policy` to:
+For orders that include multiple products with different lead times, the lead times can be configured directly from the quotation
+itself. On a product form, click the :guilabel:`Other Info` tab, and set the :guilabel:`Shipping Policy` to:
 
 #. :guilabel:`As soon as possible` to deliver products as soon as they are ready. The
    :guilabel:`Scheduled Date` of the :abbr:`DO (Delivery Order)` is determined by adding today's
@@ -128,19 +125,19 @@ itself. In the :guilabel:`Other Info` tab, set the :guilabel:`Shipping Policy` t
 
    When the :guilabel:`Shipping Policy` is set to :guilabel:`As soon as possible`, the scheduled
    delivery date is 5 days from today: April 7th. On the other hand, selecting :guilabel:`When all
-   products are ready` in this case configures the scheduled date to be 8 days from today: April
+   products are ready` configures the scheduled date to be 8 days from today: April
    10th.
 
 .. _inventory/management/planning/scheduled/purchase-LT:
 
-Purchase - lead times
+Purchase lead times
 =====================
 
-Simplify procurement by automatically determining dates to place orders from suppliers. Odoo
+Automatically determining the dates on which to place orders from suppliers can help to simplify the procurement process. Odoo
 calculates the supplier shipment *receipt date* and :abbr:`PO (Purchase Order)` deadline based on
 the required date the product is needed in the warehouse. By working backwards from the receipt
 date, vendor lead times and purchase security lead times are taken into account to determine the
-:abbr:`PO (Purchase Order)` deadline. This deadline  which is the date by which the order should be
+:abbr:`PO (Purchase Order)` deadline. This deadline is the date by which the order should be
 confirmed to ensure timely arrival by the expected receipt date.
 
 .. image:: scheduled_dates/vendor-lead-times.png
@@ -153,7 +150,7 @@ confirmed to ensure timely arrival by the expected receipt date.
 Vendor lead time
 ----------------
 
-To set a vendor lead time for an order to arrive from the vendor location to the warehouse, begin by
+To set a vendor lead time for orders arriving in the warehouse from a vendor location, begin by
 navigating to the product form through :menuselection:`Purchase app --> Products --> Products`.
 Next, select the desired product and switch to the :guilabel:`Purchase` tab. In the editable vendor
 pricelist, click the :guilabel:`Add a line` button to add vendor details, such as the
@@ -198,8 +195,7 @@ Purchase security lead time
 
 *Purchase security lead time* is set globally for the business in :menuselection:`Inventory app -->
 Configuration --> Settings`. On the configuration page, under the :guilabel:`Advanced Scheduling`
-heading, locate the box for :guilabel:`Security Lead Time for Purchase` to enable the feature by
-checking the box. Next, enter the desired number of calendar days. By configuring the security lead
+heading, locate the box for :guilabel:`Security Lead Time for Purchase`, and click the checkbox to enable the feature. Next, enter the desired number of calendar days. By configuring the security lead
 time, a buffer is set to account for potential delays in supplier deliveries.
 
 .. example::
@@ -214,14 +210,12 @@ time, a buffer is set to account for potential delays in supplier deliveries.
 
 .. _inventory/management/planning/scheduled/manuf-LT:
 
-Manufacturing - lead times
+Manufacturing lead times
 ==========================
 
-Streamline the procurement of manufactured products by following Odoo's recommended manufacturing
-order (MO) start dates based on the required date the product is needed in the warehouse. Determine
-the :abbr:`MO (Manufacturing Order)` deadline, which is the deadline to begin the manufacturing
-process to complete the product by the scheduled delivery date, by configuring manufacturing lead
-times and manufacturing security lead times.
+Lead times can help simplify the procurement process for consumable materials and components used in manufactured products with bills of materials.
+The :abbr:`MO (Manufacturing Order)` deadline, which is the deadline to begin the manufacturing
+process to complete the product by the scheduled delivery date, can be determined by configuring the manufacturing lead times and manufacturing security lead times.
 
 .. image:: scheduled_dates/manuf-lead-times.png
    :align: center
@@ -231,7 +225,7 @@ Manufacturing lead time
 -----------------------
 
 Configure the manufacturing lead time directly on the product form by navigating to
-:menuselection:`Manufacturing app --> Products --> Products` and select the desired product. In the
+:menuselection:`Manufacturing app --> Products --> Products`, and select the desired product. In the
 :guilabel:`Inventory` tab of the product, specify the calendar days needed to the manufacture the
 product in the field, :guilabel:`Manufacturing Lead Time`.
 
@@ -269,8 +263,7 @@ Manufacturing security lead time
 
 *Manufacturing security lead time* is set globally for the business in :menuselection:`Manufacturing
 app --> Configuration --> Settings`. On the configuration page, under the :guilabel:`Planning`
-heading, locate the box for :guilabel:`Security Lead Time` to enable the feature by checking the
-box. Next, enter the desired number of calendar days. By configuring the security lead time, a
+heading, locate the box for :guilabel:`Security Lead Time`, and click the checkbox to enable the feature. Next, enter the desired number of calendar days. By configuring the security lead time, a
 buffer is set to account for potential delays in the manufacturing process.
 
 .. image:: scheduled_dates/manuf-security-LT.png
@@ -287,14 +280,14 @@ buffer is set to account for potential delays in the manufacturing process.
 Global example
 ==============
 
-Consider the following example to see how all the lead times work together to ensure timely order
-fulfillment. Configured lead times:
+See the following example to understand how all the lead times work together to ensure timely order
+fulfillment:
 
--  Sales security lead time: 1 day
--  Manufacturing security lead time: 2 days
--  Manufacturing lead time: 3 days
--  Purchase security lead time: 1 day
--  Vendor lead time: 4 days
+-  **Sales security lead time**: 1 day
+-  **Manufacturing security lead time**: 2 days
+-  **Manufacturing lead time**: 3 days
+-  **Purchase security lead time**: 1 day
+-  **Vendor lead time**: 4 days
 
 The customer places an order for a manufactured product on September 1st, and the scheduled delivery
 date from the warehouse is on September 20th. Odoo uses lead times and automated reordering rules to
@@ -312,10 +305,10 @@ schedule the necessary operations based on the outgoing shipment delivery date, 
 -  **September 13th**: Scheduled date of receipt for components. Was initially set to 9/14, but the
    1-day purchase security lead time pushed the date earlier by 1 day
 
--  **September 14th**: Deadline to begin manufacturing. Calculated by subtracting  the manufacturing
+-  **September 14th**: Deadline to begin manufacturing. Calculated by subtracting the manufacturing
    lead time of 3 days and the manufacturing security lead time of 2 days from the expected delivery
-   date of 9/19
+   date of September 19th
 
 -  **September 19th**: :guilabel:`Scheduled Date` on the delivery order form indicates the updated
-   expected delivery date, which was originally set as 9/20. But the sales security lead time pushed
+   expected delivery date, which was originally set as September 20th. But the sales security lead time pushed
    the date forward by a day.
